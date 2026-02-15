@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis - 未踏アドバンスト応募フォーム管理</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --card-hover: #1a1a28;
+  --border: #2a2a3a;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #e17055;
+  --text: #dfe6e9;
+  --text-dim: #636e72;
+  --required: #e17055;
+  --optional: #00b894;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+.header {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #fd79a8 100%);
+  padding: 40px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90" opacity=".05">🧠</text></svg>') repeat;
+  background-size: 80px;
+}
+.header h1 {
+  font-size: 2.5em;
+  font-weight: 800;
+  position: relative;
+  text-shadow: 2px 2px 4px rgba(0,0,0,.3);
+}
+.header p { position: relative; opacity: .9; margin-top: 8px; font-size: 1.1em; }
+.progress-bar-container {
+  background: var(--card);
+  padding: 20px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.progress-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .9em; }
+.progress-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 4px;
+  transition: width .5s ease;
+}
+.nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  position: sticky;
+  top: 60px;
+  z-index: 99;
+}
+.nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .8em;
+  border: 1px solid var(--border);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.nav a:hover, .nav a.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+.section-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 40px 0 20px;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title .badge {
+  background: rgba(255,255,255,.2);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: .6em;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all .2s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.card-header .q-num {
+  background: var(--accent);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.card-header .q-title { flex: 1; margin-left: 12px; font-weight: 600; }
+.card-header .q-tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: .7em;
+  font-weight: 600;
+}
+.tag-required { background: rgba(225,112,85,.2); color: var(--required); }
+.tag-optional { background: rgba(0,184,148,.2); color: var(--optional); }
+.tag-filled { background: rgba(0,184,148,.3); color: var(--success); }
+.tag-empty { background: rgba(253,203,110,.2); color: var(--warning); }
+.card-body { padding: 20px; }
+.card-body .description {
+  font-size: .85em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(255,255,255,.03);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+.card-body .answer {
+  background: rgba(108,92,231,.08);
+  border: 1px solid rgba(108,92,231,.2);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: .95em;
+  white-space: pre-wrap;
+  position: relative;
+  min-height: 40px;
+}
+.card-body .answer.empty {
+  background: rgba(253,203,110,.05);
+  border-color: rgba(253,203,110,.2);
+  color: var(--text-dim);
+  font-style: italic;
+}
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .75em;
+  transition: all .2s;
+  opacity: .7;
+}
+.copy-btn:hover { opacity: 1; transform: scale(1.05); }
+.copy-btn.copied { background: var(--success); }
+.select-answer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.select-option {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: .85em;
+  cursor: default;
+}
+.select-option.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.doc-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.doc-section-header {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(108,92,231,.15), rgba(162,155,254,.08));
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.doc-section-header h3 { font-size: 1.2em; }
+.doc-section-body { padding: 24px; }
+.doc-section-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+}
+.doc-text {
+  background: rgba(108,92,231,.05);
+  border: 1px solid rgba(108,92,231,.15);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  position: relative;
+  line-height: 1.8;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 20px 0 40px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-card .num { font-size: 2em; font-weight: 800; }
+.stat-card .label { font-size: .8em; color: var(--text-dim); margin-top: 4px; }
+.stat-card.total .num { color: var(--accent2); }
+.stat-card.filled .num { color: var(--success); }
+.stat-card.empty-stat .num { color: var(--warning); }
+.stat-card.required .num { color: var(--required); }
+.file-upload-card {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.file-upload-card .icon { font-size: 2em; margin-bottom: 10px; }
+.file-upload-card .name { font-weight: 600; margin-bottom: 4px; }
+.file-upload-card .spec { font-size: .8em; color: var(--text-dim); }
+@media(max-width: 768px) {
+  .header h1 { font-size: 1.5em; }
+  .nav { top: 50px; }
+  .container { padding: 15px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Genesis - 未踏アドバンスト応募管理</h1>
+  <p>2026年度上期 未踏アドバンスト事業 応募情報入力フォーム 全回答一覧</p>
+</div>
+
+<div class="progress-bar-container">
+  <div class="progress-info">
+    <span id="progress-text">読み込み中...</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<nav class="nav" id="nav">
+  <a href="#sec-personal1">提案者1</a>
+  <a href="#sec-personal1-cont">提案者1(続)</a>
+  <a href="#sec-member2">提案者2有無</a>
+  <a href="#sec-region">居住地域</a>
+  <a href="#sec-personal2">提案者2</a>
+  <a href="#sec-personal2-cont">提案者2(続)</a>
+  <a href="#sec-member3">提案者3有無</a>
+  <a href="#sec-personal3">提案者3</a>
+  <a href="#sec-personal3-cont">提案者3(続)</a>
+  <a href="#sec-member4">提案者4有無</a>
+  <a href="#sec-project">プロジェクト概要</a>
+  <a href="#sec-confirm">確認事項</a>
+  <a href="#sec-files">ファイル</a>
+  <a href="#sec-docs">詳細資料</a>
+</nav>
+
+<div class="container">
+
+<div class="stats" id="stats">
+  <div class="stat-card total"><div class="num" id="stat-total">77</div><div class="label">全質問数</div></div>
+  <div class="stat-card filled"><div class="num" id="stat-filled">0</div><div class="label">入力済み</div></div>
+  <div class="stat-card empty-stat"><div class="num" id="stat-empty">0</div><div class="label">未入力</div></div>
+  <div class="stat-card required"><div class="num" id="stat-req">64</div><div class="label">必須項目</div></div>
+</div>
+
+<div id="form-content"></div>
+
+<!-- 詳細資料セクション -->
+<div id="sec-docs">
+<div class="section-title">📄 提案プロジェクト詳細資料（ファイル2用）<span class="badge">Word 5-10枚</span></div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>1. プロジェクトの背景・目的・目標</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-bg')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-bg">1-1. 背景：標準化された教育OSとの「構造的なミスマッチ」
+
+現在の公教育システムは、産業社会に適した「均質な人材」の育成に最適化されています。この画一的な環境下では、ADHDやASDといった特異なパラメータを持つ子供たちは、本来は「異能（イノベーションの種）」であるにも関わらず、システムのエラーとして排除され、不登校や学習性無力感に追い込まれています。
+
+提案者（高崎）は、臨床心理士および高校教員として長年彼らと向き合ってきました。現場で確信しているのは、「彼らの能力が低いのではなく、既存の教育インターフェースが彼らの脳の仕様に適合していないだけである」という事実です。彼らに必要なのは、欠点を矯正する福祉ではなく、その突出した特性を最大限にドライブさせるための「専用環境の実装」です。
+
+1-2. 目的：AIによる「精神と時の部屋」の社会実装
+
+本プロジェクトの目的は、AIとメタバース技術を統合し、神経多様性児の才能を最短距離で覚醒させる適応型プラットフォーム『Genesis』を構築することです。コンセプトは、漫画『ドラゴンボール』に登場する「精神と時の部屋」の技術的な再現です。
+
+・環境の動的最適化：視線・生体ログ・操作履歴をマルチモーダルAIがリアルタイムに解析。ユーザーの認知特性に合わせて、情報の粒度や提示方法を動的に最適化します。
+・学習曲線のショートカット：苦手な科目の克服に時間を費やすのではなく、AIバディが「君の特性なら、このスキルセットだけ習得すれば勝てる」という最短ルートを提示し、圧倒的な時間短縮を実現します。
+
+1-3. 目標：「保護対象」から「国家資源」への転換
+
+最終ゴールは、教育から実社会（労働・経済）へシームレスに接続する「人材開発エコシステム」の確立です。
+
+・短期目標：ゲーム内での創作活動を通じて「実社会の価値（企業案件）」を生み出し、経済的な報酬を得られることを実証します。
+・中長期目標：「不登校＝弱者」という社会通念を覆し、彼らを「10代で起業し外貨を稼ぐトップクリエイター」として社会実装します。埋もれていた異能を「国家資源」へと転換する新たな社会OSを秋田から構築します。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>2. 開発に関する未踏性・期待される効果</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-novel')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-novel">本プロジェクトの最大の未踏性は、「検査」と「ゲーム」の境界を消失させる点にある。既存の知能検査（WAIS等）は被検者に強いストレスを与えるが、本システムはメタバース内での自然な振る舞いから認知特性を逆算する「Stealth WAIS（ステルス・アセスメント）」技術を確立する。
+
+2-1. 技術的コア①：Gamified Assessment Engine
+
+標準的な知能検査の指標を「クエスト」に翻訳し、操作ログから認知スコアを算出する独自アルゴリズムを実装する。
+
+・処理速度（PSI）の測定 ⇒ クエスト「精霊の光集め」：ターゲット捕捉の反応速度とマウス軌跡から、視覚運動協応の不器用さを特定する。
+・ワーキングメモリ（WMI）の測定 ⇒ クエスト「魔法陣の模写」：NPCのパターン記憶タスクを通じ、聴覚的短期記憶の容量を測定する。
+・入出力特性（Modality）のABテスト ⇒ クエスト「ナビゲーション・チャレンジ」：「視覚のみ」と「聴覚のみ」でのクリアタイムを比較し、学習教材の提示形式（UI）を自動最適化する。
+
+2-2. 技術的コア②：World as a Portfolio
+
+履歴書では表現できない非認知能力を、3D空間上のオブジェクトとして可視化する。企業は「ワールドを探索する」ことで、その子のプログラミング能力や空間把握能力を直感的に評価できる。
+
+2-3. 技術的コア③：Synergy Install
+
+個人の「欠落（凹）」を他者の「突出（凸）」で埋める、自律分散的な相互扶助システム。他者のスキルオブジェクトを自ワールドに「インストール」できる機能を実装し、「苦手なことは他者に頼る」という生存戦略をシステム的に学習させる。</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図1：Stealth WAIS（ステルス・アセスメント）の設計図</p>
+    <img src="images/doc1.png" alt="図1：Stealth WAIS">
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図2：World as a Portfolio の設計図</p>
+    <img src="images/doc2.png" alt="図2：World as a Portfolio">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>3. 開発の具体的な進め方</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-dev')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-dev">3-1. システム構成
+
+・Client Layer (Unity/UE5): 没入空間とHaptic UX
+・Cloud Layer (Python/AI Engine): アセスメント推論エンジンとクエスト生成LLM
+・Blockchain Layer (Polygon): スキル証明NFTと報酬管理
+
+3-2. 開発スケジュール（2026年6月〜2027年2月）
+
+Phase 1（6-8月）：プロトタイプ開発。Stealth WAISのロジック実装とデータ収集。
+Phase 2（9-11月）：エコシステム実装。スキルオブジェクト生成とインポート機能の実装。
+Phase 3（12-2月）：社会実装。企業タスクのクエスト化と経済圏の稼働テスト。
+
+3-3. 開発体制（Team Genesis）
+
+PM / Logic Architect：高崎 翔太（アセスメントロジック設計、教師データ作成）
+Content / Scenario Designer：山﨑（カリキュラム設計、データタグ付け）
+Economy / System Architect：井上（トークン設計、企業マッチングロジック）</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図3：システム構成図</p>
+    <img src="images/doc3.png" alt="図3：システム構成図">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>4. 提案者の実力・能力を示す実績</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-track')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-track">4-1. 圧倒的なドメイン知識
+
+PM高崎は臨床心理士・教員として15年以上の実績を持ち、AI開発に不可欠な「良質な教師データ（視線と認知特性の相関ロジック）」をブラックボックスとして保有している唯一の人物である。
+
+4-2. 検証フィールド「if(塾)」
+
+チームメンバーが運営する「if(塾)」にて、プロトタイプを即座に生徒にテストできる環境がある。フィードバックループを高速に回せるため、机上の空論ではない実効性の高い開発が可能。
+
+4-3. 既存アセットの統合
+
+地域連携RPG「Kitazuna」の基盤（アイテムDB、経済システム）を流用・進化させることで、短期間で高機能なメタバースを構築できる。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>6. 事業化・社会実装の具体的な進め方</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-biz')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-biz">6-1. ビジネスモデル：Genesis Ecosystem
+
+教育ビジネスではなく、企業の労働力不足を解消する「HR Tech / BPOプラットフォーム」として年商3億円規模を目指す。
+
+・BPO手数料（Work）：企業のAI学習用データ作成、3D素材制作等をクエスト化して請け負う。
+・スカウト手数料（Recruit）：ワールド（ポートフォリオ）経由での採用成果報酬。
+・教育機関向けSaaS（License）：「Stealth WAIS」システムのライセンス販売。
+
+6-2. ロードマップ
+
+Phase 1：秋田モデルの確立（if塾、県内企業連携）
+Phase 2：全国展開とAPI公開（フリースクールへのSaaS提供）
+Phase 3：グローバル展開（非言語UIによる海外展開）
+
+6-3. 事業期間終了後の計画
+
+未踏期間終了後は「株式会社Genesis（仮）」を設立し、VCからの資金調達を行う。期間中に「最初の売上」を立てることをコミットする。</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図4：ビジネスモデル図</p>
+    <img src="images/doc4.png" alt="図4：ビジネスモデル図">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>概要資料（A4横1枚 / ファイル2表紙用）</h3>
+  </div>
+  <div class="doc-section-body">
+    <p style="color:var(--text-dim); font-size:.9em;">図5：概要一覧</p>
+    <img src="images/doc5.png" alt="図5：概要一覧">
+  </div>
+</div>
+
+</div><!-- sec-docs -->
+
+</div><!-- container -->
+
+<script>
+const formData = [
+  // Section: 提案者1 個人情報
+  {
+    section: "sec-personal1",
+    title: "提案者の個人情報（入力1）― 提案者1（代表者）",
+    page: "2/56",
+    items: [
+      { num:1, q:"提案者1 氏名（氏）", req:true, type:"text", answer:"高崎" },
+      { num:2, q:"提案者1 氏名（名）", req:true, type:"text", answer:"翔太" },
+      { num:3, q:"提案者1 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:4, q:"提案者1 氏名（氏フリガナ）", req:true, type:"text", answer:"タカサキ" },
+      { num:5, q:"提案者1 氏名（名フリガナ）", req:true, type:"text", answer:"ショウタ" },
+      { num:6, q:"提案者1 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:7, q:"提案者1 生年月日", req:true, type:"text", answer:"1984/11/21" },
+      { num:8, q:"提案者1 メインの所属・在籍組織名", req:true, type:"text", answer:"if(塾)", desc:"メインとなる所属・在籍組織名（会社名・学校名等）を記入してください。所属・在籍組織がない場合は「フリーランス」と記入してください。" },
+      { num:9, q:"提案者1 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"塾頭", desc:"メインとなる所属・在籍組織の部署名を記入してください。" },
+      { num:10, q:"提案者1 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  {
+    section: "sec-personal1-cont",
+    title: "提案者の個人情報（入力1）（つづき）― 提案者1",
+    page: "4/56",
+    items: [
+      { num:11, q:"提案者1 そのほかの所属・在籍組織名", req:false, type:"text", answer:"秋田クラーク高等学院" },
+      { num:12, q:"提案者1 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"ITプログラミングコース担当" },
+      { num:13, q:"提案者1 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"", desc:"所属組織の株主構成、売上、利益、資本金、所属組織における役割・立場等" },
+      { num:14, q:"提案者1 郵便物送付先（郵便番号）", req:true, type:"text", answer:"010-0851", desc:"半角数字でハイフン「-」を含めて記入してください。" },
+      { num:15, q:"提案者1 郵便物送付先（住所）", req:true, type:"text", answer:"秋田県秋田市手形字西谷地177-2" },
+      { num:16, q:"提案者1 予備の電子メールアドレス", req:false, type:"text", answer:"ifjyuku@gmail.com" },
+      { num:17, q:"提案者1 電話番号", req:true, type:"text", answer:"080-4937-1121", desc:"半角数字でハイフン「-」を含めて記入してください。" },
+      { num:18, q:"提案者1 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:19, q:"提案者1 略歴", req:true, type:"text", answer:"専修大学院文学研究科心理学専攻コース修了,株式会社LITALICO2012年入社、株式会社LITALICO2019年退社、2019年ゲタバコ倶楽部開業、2024年if(塾)開業", desc:"略歴（学歴、職歴など）を記入してください。" },
+      { num:20, q:"提案者1 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり", desc:"すべての所属組織から本事業への応募の了解を得ていますか。" }
+    ]
+  },
+  // Section: 提案者2有無
+  {
+    section: "sec-member2",
+    title: "ほかのメンバーについて（提案者2）",
+    page: "6/56",
+    items: [
+      { num:21, q:"提案者2のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"はい", desc:"提案者1（代表者）以外のメンバーはいますか。" }
+    ]
+  },
+  // Section: 居住地域
+  {
+    section: "sec-region",
+    title: "提案者1（代表者）以外のメンバーの居住地域",
+    page: "7/56",
+    items: [
+      { num:22, q:"提案者1以外のメンバーが居住している地域", req:true, type:"check", options:["北海道","東北地方","関東地方","中部地方","近畿地方","中国地方","四国地方","九州地方（沖縄県を含む）","その他"], answer:"東北地方" }
+    ]
+  },
+  // Section: 提案者2 個人情報
+  {
+    section: "sec-personal2",
+    title: "提案者の個人情報（入力1）― 提案者2",
+    page: "8/56",
+    items: [
+      { num:23, q:"提案者2 氏名（氏）", req:true, type:"text", answer:"山﨑" },
+      { num:24, q:"提案者2 氏名（名）", req:true, type:"text", answer:"琢己" },
+      { num:25, q:"提案者2 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:26, q:"提案者2 氏名（氏フリガナ）", req:true, type:"text", answer:"ヤマザキ" },
+      { num:27, q:"提案者2 氏名（名フリガナ）", req:true, type:"text", answer:"タクミ" },
+      { num:28, q:"提案者2 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:29, q:"提案者2 生年月日", req:true, type:"text", answer:"2006/02/02" },
+      { num:30, q:"提案者2 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
+      { num:31, q:"提案者2 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"塾長" },
+      { num:32, q:"提案者2 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"" }
+    ]
+  },
+  {
+    section: "sec-personal2-cont",
+    title: "提案者2の個人情報（つづき）",
+    page: "10/56",
+    items: [
+      { num:33, q:"提案者2 そのほかの所属・在籍組織名", req:false, type:"text", answer:"山形大学" },
+      { num:34, q:"提案者2 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"社会共創デジタル学環" },
+      { num:35, q:"提案者2 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"" },
+      { num:36, q:"提案者2 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:37, q:"提案者2 略歴", req:true, type:"text", answer:"秋田クラーク高等学院2025年卒業,山形大学社会共創デジタル学環2025年入学" },
+      { num:38, q:"提案者2 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり" }
+    ]
+  },
+  // Section: 提案者3有無
+  {
+    section: "sec-member3",
+    title: "ほかのメンバーについて（提案者3）",
+    page: "12/56",
+    items: [
+      { num:39, q:"提案者3のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"はい" }
+    ]
+  },
+  // Section: 提案者3 個人情報
+  {
+    section: "sec-personal3",
+    title: "提案者の個人情報（入力1）― 提案者3",
+    page: "13/56",
+    items: [
+      { num:40, q:"提案者3 氏名（氏）", req:true, type:"text", answer:"井上" },
+      { num:41, q:"提案者3 氏名（名）", req:true, type:"text", answer:"陽斗" },
+      { num:42, q:"提案者3 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:43, q:"提案者3 氏名（氏フリガナ）", req:true, type:"text", answer:"イノウエ" },
+      { num:44, q:"提案者3 氏名（名フリガナ）", req:true, type:"text", answer:"ハルト" },
+      { num:45, q:"提案者3 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:46, q:"提案者3 生年月日", req:true, type:"text", answer:"2026/02/11" },
+      { num:47, q:"提案者3 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
+      { num:48, q:"提案者3 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"フリーランス" },
+      { num:49, q:"提案者3 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  {
+    section: "sec-personal3-cont",
+    title: "提案者3の個人情報（つづき）",
+    page: "15/56",
+    items: [
+      { num:50, q:"提案者3 そのほかの所属・在籍組織名", req:false, type:"text", answer:"秋田大学" },
+      { num:51, q:"提案者3 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"理工学部" },
+      { num:52, q:"提案者3 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"" },
+      { num:53, q:"提案者3 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:54, q:"提案者3 略歴", req:true, type:"text", answer:"2026年秋田クラーク高等学院卒業、2026年秋田大学入学" },
+      { num:55, q:"提案者3 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり" }
+    ]
+  },
+  // Section: 提案者4有無
+  {
+    section: "sec-member4",
+    title: "ほかのメンバーについて（提案者4）",
+    page: "17/56",
+    items: [
+      { num:56, q:"提案者4のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  // Section: プロジェクト概要
+  {
+    section: "sec-project",
+    title: "申請金額とプロジェクトの概要（入力2）",
+    page: "34/56",
+    items: [
+      { num:57, q:"プロジェクト名（30字以内）", req:true, type:"text", answer:"if(塾)の才能爆発教育〜発達特性×AI×起業家精神", desc:"提案内容を的確かつ具体的に表現し、用いる技術と解決しようとする課題が読み取れる簡潔でわかり易い名称としてください。" },
+      { num:58, q:"実施費用総額", req:true, type:"text", answer:"16,000,000", desc:"半角数字で3桁コンマ（,）区切りで記入してください。時間単価×作業時間で計算される金額です。" },
+      { num:59, q:"提案プロジェクト概要（600字〜1,000字程度）", req:true, type:"text", answer:"本プロジェクトは、既存の画一的な教育環境に不適応を起こしている神経多様性児（ADHD/ASD等）に対し、AIによる「完全個別最適化」と「自律的な相互扶助」を提供するメタバース空間『Genesis』を開発するものである。\n\n1. 没入型アセスメント（The Decoder）：ユーザーは初期の「何もない空間」での建築ミッションを通じ、視線・操作ログ・バイタル等のマルチモーダルデータから、従来の検査では不可能な深層的な発達特性や認知バイアスをAIにより解析される。\n\n2. ワールド＝ポートフォリオ（The Portfolio）：解析結果に基づき、AIバディがその子に最適な「探究クエスト」を生成。獲得した能力は「自動化された農場」や「高度な建築物」等の「スキルオブジェクト」として具現化され、空間そのものが「3D職務経歴書」となる。\n\n3. スキル共有によるシナジー創出（The Synergy）：ユーザー間で「苦手なタスク」を依頼し合うギルド機能を実装。依頼が達成されると、提供者のスキルオブジェクトが依頼者のワールドにも生成（インストール）される。これにより、不得意分野を他者の才能で補完し合う「凸凹の結合」を可視化し、自然発生的なDAO型コミュニティを形成する。\n\n最終的には、この経済圏に実社会企業のタスクを接続し、排除されていた異能を最短ルートで社会実装するエコシステムを構築する。", desc:"提案プロジェクト詳細資料（ファイル2）に記載する内容の中で重要なポイントを中心に、全体の概要を簡潔にまとめてください。" },
+      { num:60, q:"知的財産権の権利情報", req:false, type:"text", answer:"minecraft", desc:"提案プロジェクトに関する知的財産権の権利情報を全て記載してください。第三者が持つ権利を利用して開発を行う場合にもすべて記載してください。" }
+    ]
+  },
+  // Section: 確認事項
+  {
+    section: "sec-confirm",
+    title: "確認事項（入力3）",
+    page: "35-55/56",
+    items: [
+      { num:61, q:"過去の採択経験有無", req:true, type:"select", options:["採択されたことがある","採択されたことはない"], answer:"採択されたことがある", desc:"提案メンバーはこれまでに、IPAが実施する未踏ソフトウェア創造事業、未踏IT人材発掘・育成事業、未踏アドバンスト事業、未踏ターゲット事業のいずれかに採択されたことはありますか。" },
+      { num:62, q:"採択事業名・採択年度", req:true, type:"text", answer:"2025 if(塾)、Kitazuna", desc:"採択された事業名と採択年度を全て記入してください。" },
+      { num:63, q:"他の未踏事業との併願", req:true, type:"select", options:["未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している（または応募する予定）のメンバーがいる","未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している（または応募する予定）のメンバーはいない"], answer:"", desc:"2026年度の未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している、または応募する予定のメンバーはいますか。" },
+      { num:64, q:"IPAとの係わり合いの有無", req:true, type:"select", options:["ある","ない"], answer:"ない", desc:"提案メンバーはこれまでにIPAと何らかの係わり合いを持ったことがありますか。（委員会の委員等の経験など）" },
+      { num:65, q:"PMとの密接な関係の有無", req:true, type:"select", options:["ある","ない"], answer:"ない", desc:"提案メンバーはPMとの密接な関係にありますか。" },
+      { num:66, q:"所属組織の変更予定有無", req:true, type:"select", options:["予定がある","予定はない"], answer:"予定はない", desc:"事業期間中に所属組織（学校を含みます）が変更になる予定がありますか。" },
+      { num:67, q:"外国籍メンバーの有無", req:true, type:"select", options:["外国籍メンバーがいる（在留資格を有し、就労可能）","外国籍メンバーがいる（在留資格や就労可否に未確定部分がある）","外国籍メンバーはいない"], answer:"外国籍メンバーはいない" },
+      { num:68, q:"未成年者の有無", req:true, type:"select", options:["未成年者がいる（保護者の了解あり）","未成年者がいる（保護者の了解なし）","未成年者はいない"], answer:"未成年者がいる（保護者の了解あり）" },
+      { num:69, q:"公的機関の助成有無", req:true, type:"select", options:["2024年6月以降に受けたことがある","現在受けている","応募中","上記に当てはまらない"], answer:"上記に当てはまらない", desc:"提案プロジェクトに類似した内容での公的機関からの助成等について伺います。" },
+      { num:70, q:"公的機関以外の助成有無", req:true, type:"select", options:["2024年6月以降に受けたことがある","現在受けている","応募中","上記に当てはまらない"], answer:"上記に当てはまらない", desc:"提案プロジェクトに類似した内容での公的機関以外の民間企業等（大学・ファンド等を含む）が行う助成等について伺います。" },
+      { num:71, q:"確認書への同意", req:true, type:"select", options:["同意する","同意しない"], answer:"同意する", desc:"公募要領の 8. その他応募にあたっての注意点（5）に記載している確認書の内容について、同意しますか。" },
+      { num:72, q:"提案プロジェクトを活用して、日本のIT関連産業の発展に寄与する意欲", req:true, type:"select", options:["意欲がある","意欲がない"], answer:"意欲がある" },
+      { num:73, q:"現在考えていることまたは意欲がない理由", req:true, type:"text", answer:"教育にIT革命起こるぞ", desc:"意欲があると回答した場合は現在考えていることを、意欲がないと回答した場合はその理由を記入してください。" }
+    ]
+  },
+  // Section: ファイルアップロード
+  {
+    section: "sec-files",
+    title: "ファイルアップロード",
+    page: "56/56",
+    items: [
+      { num:74, q:"誓約書（ファイル1）", req:true, type:"file", answer:"", desc:"誓約書をアップロードしてください。公募概要ページよりダウンロード。ファイル名の最初に氏名を記載。10MB以下。" },
+      { num:75, q:"提案プロジェクト詳細資料（ファイル2）", req:true, type:"file", answer:"", desc:"提案詳細のPDFデータをアップロード。ファイル名の最初に氏名を記載。20MB以下。公募要領6.に記載された要件を満たしていること。" },
+      { num:76, q:"自己紹介ビデオ（ファイル3）", req:false, type:"file", answer:"", desc:"【任意】自己紹介ビデオがあればアップロード。ファイル名の最初に氏名を記載。30MB以下。" },
+      { num:77, q:"参考資料（ファイル4）", req:false, type:"file", answer:"", desc:"【任意】参考資料があればアップロード。ファイル名の最初に氏名を記載。30MB以下。複数ファイルがある場合は圧縮してアップロード。" }
+    ]
+  }
+];
+
+function renderForm() {
+  const container = document.getElementById('form-content');
+  let html = '';
+
+  formData.forEach(section => {
+    html += `<div id="${section.section}">`;
+    html += `<div class="section-title">📋 ${section.title} <span class="badge">p.${section.page}</span></div>`;
+
+    section.items.forEach(item => {
+      const hasAnswer = item.answer && item.answer.trim() !== '';
+      const reqTag = item.req
+        ? '<span class="q-tag tag-required">必須</span>'
+        : '<span class="q-tag tag-optional">任意</span>';
+      const statusTag = hasAnswer
+        ? '<span class="q-tag tag-filled" style="margin-left:6px">入力済</span>'
+        : '<span class="q-tag tag-empty" style="margin-left:6px">未入力</span>';
+
+      html += `<div class="card" id="q-${item.num}">`;
+      html += `<div class="card-header">`;
+      html += `<span class="q-num">${item.num}</span>`;
+      html += `<span class="q-title">${item.q}</span>`;
+      html += `<div>${reqTag}${statusTag}</div>`;
+      html += `</div>`;
+      html += `<div class="card-body">`;
+
+      if (item.desc) {
+        html += `<div class="description">${item.desc}</div>`;
+      }
+
+      if (item.type === 'select' || item.type === 'check') {
+        html += `<div class="select-answer">`;
+        (item.options || []).forEach(opt => {
+          const sel = item.answer === opt ? 'selected' : '';
+          html += `<span class="select-option ${sel}">${opt}</span>`;
+        });
+        html += `</div>`;
+        if (hasAnswer) {
+          html += `<div class="answer" style="margin-top:12px">${item.answer}<button class="copy-btn" onclick="copyText(this)">コピー</button></div>`;
+        }
+      } else if (item.type === 'file') {
+        html += `<div class="file-upload-card">`;
+        html += `<div class="icon">📎</div>`;
+        html += `<div class="name">${item.q}</div>`;
+        html += `<div class="spec">${item.desc || ''}</div>`;
+        html += `<div style="margin-top:10px; color:var(--warning); font-size:.85em">${hasAnswer ? '✅ 準備済み' : '⚠️ 未準備'}</div>`;
+        html += `</div>`;
+      } else {
+        const cls = hasAnswer ? '' : 'empty';
+        const display = hasAnswer ? item.answer : '（未入力）';
+        html += `<div class="answer ${cls}">${display}${hasAnswer ? '<button class="copy-btn" onclick="copyText(this)">コピー</button>' : ''}</div>`;
+      }
+
+      html += `</div></div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  updateStats();
+}
+
+function updateStats() {
+  let total = 0, filled = 0, reqCount = 0;
+  formData.forEach(s => s.items.forEach(item => {
+    total++;
+    if (item.req) reqCount++;
+    if (item.answer && item.answer.trim() !== '') filled++;
+  }));
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-filled').textContent = filled;
+  document.getElementById('stat-empty').textContent = total - filled;
+  document.getElementById('stat-req').textContent = reqCount;
+
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `入力済み: ${filled} / ${total}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function copyText(btn) {
+  const text = btn.parentElement.textContent.replace('コピー', '').replace('コピー済み!', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'コピー済み!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyDocText(btn, id) {
+  const text = document.getElementById(id).textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'コピー済み!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Smooth scroll for nav
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+renderForm();
+</script>
+</body>
+</html>
