@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis Platform - 統合タスクマッチングシステム</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --card-hover: #1a1a28;
+  --border: #2a2a3a;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #e17055;
+  --text: #dfe6e9;
+  --text-dim: #636e72;
+  --mc-green: #4caf50;
+  --mc-dark: #1b2838;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #fd79a8 100%);
+  padding: 28px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90" opacity=".05">⚡</text></svg>') repeat;
+  background-size: 80px;
+}
+.header h1 { font-size: 2em; font-weight: 800; position: relative; }
+.header p { position: relative; opacity: .9; margin-top: 4px; font-size: .95em; }
+.header-badge {
+  position: relative;
+  display: inline-block;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: .75em;
+  margin-top: 8px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Tabs ── */
+.tabs-nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.tab-btn {
+  flex: none;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .9em;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.tab-btn:hover { color: var(--text); background: var(--card-hover); }
+.tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card:hover { border-color: var(--accent); }
+.card h3 { font-size: 1em; margin-bottom: 12px; color: var(--accent2); }
+
+/* ── Grid ── */
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+/* ── Stat Cards ── */
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-card .num { font-size: 2.2em; font-weight: 800; color: var(--accent2); }
+.stat-card .label { color: var(--text-dim); font-size: .85em; margin-top: 4px; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: .85em; color: var(--text-dim); margin-bottom: 6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: .9em;
+  font-family: inherit;
+  transition: border-color .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .9em;
+  font-weight: 600;
+  transition: all .2s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #5a4dcf; transform: translateY(-1px); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #009d7a; }
+.btn-warning { background: var(--warning); color: #2d3436; }
+.btn-warning:hover { background: #f0b959; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #c86050; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+.btn-sm { padding: 6px 12px; font-size: .8em; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: .75em;
+  font-weight: 600;
+}
+.badge-accent { background: rgba(108,92,231,.2); color: var(--accent2); border: 1px solid var(--accent); }
+.badge-success { background: rgba(0,184,148,.15); color: var(--success); border: 1px solid var(--success); }
+.badge-warning { background: rgba(253,203,110,.15); color: var(--warning); border: 1px solid var(--warning); }
+.badge-danger { background: rgba(225,112,85,.15); color: var(--danger); border: 1px solid var(--danger); }
+
+/* ── Motivation bar ── */
+.moti-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.moti-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .5s;
+}
+
+/* ── Level bar ── */
+.level-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.level-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 3px;
+}
+
+/* ── Task item ── */
+.task-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.task-item .task-title { flex: 1; font-size: .9em; }
+.task-num {
+  width: 24px; height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75em; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Log ── */
+.log-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .85em;
+}
+.log-item:last-child { border-bottom: none; }
+.log-time { color: var(--text-dim); white-space: nowrap; min-width: 80px; }
+.log-tool {
+  padding: 1px 8px; border-radius: 10px; font-size: .75em;
+  font-weight: 700; white-space: nowrap; align-self: flex-start;
+  margin-top: 2px;
+}
+.log-genesis { background: rgba(108,92,231,.25); color: var(--accent2); }
+.log-minecraft { background: rgba(76,175,80,.25); color: var(--mc-green); }
+.log-advisor { background: rgba(253,203,110,.25); color: var(--warning); }
+
+/* ── Chat UI ── */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: .9em;
+  line-height: 1.5;
+}
+.chat-bubble.user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.ai {
+  align-self: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble.ai .ai-name {
+  font-size: .75em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: .7;
+}
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+.chat-input-row input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: .9em;
+  font-family: inherit;
+}
+.chat-input-row input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Minecraft theme ── */
+.mc-header {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  border: 2px solid var(--mc-green);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Courier New', monospace;
+}
+.mc-avatar {
+  width: 48px; height: 48px;
+  background: #8d6e63;
+  border: 3px solid #5d4037;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6em;
+  image-rendering: pixelated;
+}
+.mc-name { color: var(--mc-green); font-weight: 700; font-size: 1.1em; }
+.mc-title { color: #81c784; font-size: .8em; }
+
+/* ── Subtabs ── */
+.subtabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.subtab-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--card);
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .85em;
+  font-weight: 600;
+  transition: all .2s;
+  border-right: 1px solid var(--border);
+}
+.subtab-btn:last-child { border-right: none; }
+.subtab-btn.active { background: var(--accent); color: #fff; }
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+
+/* ── Radar chart ── */
+.radar-container {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+/* ── Match result ── */
+.match-result {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.match-score-circle {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .9em;
+  flex-shrink: 0;
+}
+
+/* ── Student card ── */
+.student-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.student-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.student-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4em;
+  margin-bottom: 10px;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 { margin-bottom: 20px; color: var(--accent2); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* ── Activity log ── */
+#activityLog .log-item { animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .header h1 { font-size: 1.5em; }
+}
+
+.section-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-dim);
+}
+.empty-state .icon { font-size: 2.5em; margin-bottom: 10px; }
+
+.tag {
+  display: inline-block;
+  background: rgba(108,92,231,.15);
+  border: 1px solid rgba(108,92,231,.3);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: .75em;
+  margin: 2px;
+}
+.tag-skill {
+  background: rgba(0,184,148,.12);
+  border-color: rgba(0,184,148,.3);
+  color: var(--success);
+}
+.tag-interest {
+  background: rgba(253,203,110,.12);
+  border-color: rgba(253,203,110,.3);
+  color: var(--warning);
+}
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* Toast */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: .85em;
+  min-width: 200px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  animation: slideUp .3s ease;
+}
+.toast.success { border-left: 4px solid var(--success); }
+.toast.info { border-left: 4px solid var(--accent); }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Genesis Platform</h1>
+  <p>統合タスクマッチングシステム — 無気力な若者に「次の一歩」を</p>
+  <span class="header-badge">🎮 未踏アドバンスト デモプロトタイプ v1.0</span>
+</div>
+
+<div class="tabs-nav">
+  <button class="tab-btn active" onclick="switchTab('dashboard')">📊 ダッシュボード</button>
+  <button class="tab-btn" onclick="switchTab('jobs')">💼 案件管理</button>
+  <button class="tab-btn" onclick="switchTab('students')">👨‍🎓 生徒管理</button>
+  <button class="tab-btn" onclick="switchTab('aitools')">🤖 AI ツール</button>
+  <button class="tab-btn" onclick="switchTab('convdb')">🗄️ 会話DB</button>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TAB: DASHBOARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="container">
+    <div class="grid-3" id="statsGrid" style="margin-bottom:24px;"></div>
+
+    <div class="grid-2">
+      <div>
+        <div class="section-title">⚠️ 要注意生徒（モチベーション低）</div>
+        <div id="lowMotiStudents"></div>
+      </div>
+      <div>
+        <div class="section-title">📋 最近のマッチング</div>
+        <div id="recentMatches"></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">🕐 アクティビティログ</div>
+    <div class="card" style="max-height:260px;overflow-y:auto;">
+      <div id="activityLog"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TAB: JOBS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="tab-jobs" class="tab-content">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:0;border:none;">💼 案件一覧</div>
+      <button class="btn btn-primary" onclick="openJobModal()">＋ 新規案件登録</button>
+    </div>
+    <div id="jobsList"></div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TAB: STUDENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="tab-students" class="tab-content">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:0;border:none;">👨‍🎓 生徒一覧</div>
+      <button class="btn btn-primary" onclick="openStudentModal()">＋ 生徒追加</button>
+    </div>
+    <div class="grid-3" id="studentGrid"></div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TAB: AI TOOLS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="tab-aitools" class="tab-content">
+  <div class="container">
+    <div class="subtabs">
+      <button class="subtab-btn active" onclick="switchSubtab('minecraft')">🎮 Minecraft NPC</button>
+      <button class="subtab-btn" onclick="switchSubtab('advisor')">🧭 やる事相談AI</button>
+    </div>
+
+    <!-- Minecraft NPC -->
+    <div id="subtab-minecraft" class="subtab-content active">
+      <div class="mc-header">
+        <div class="mc-avatar">🗡️</div>
+        <div>
+          <div class="mc-name">スティーブ NPC</div>
+          <div class="mc-title">Genesis のガイドキャラクター — Minecraft 世界より</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>話しかける生徒を選択</label>
+        <select id="mcStudentSelect" onchange="renderMcContext()">
+          <option value="">— 生徒を選択 —</option>
+        </select>
+      </div>
+      <div id="mcStudentContext" style="margin-bottom:12px;"></div>
+      <div class="chat-container">
+        <div class="chat-messages" id="mcMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="mcInput" placeholder="スティーブに話しかける..." onkeydown="if(event.key==='Enter')sendMcMessage()">
+          <button class="btn btn-success" onclick="sendMcMessage()">送信</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advisor AI -->
+    <div id="subtab-advisor" class="subtab-content">
+      <div class="card" style="border-color:var(--warning);margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.8em;">🧭</span>
+          <div>
+            <div style="font-weight:700;color:var(--warning);">やる事相談AI</div>
+            <div style="font-size:.85em;color:var(--text-dim);">あなたのプロフィールと現在のタスクから、今日やるべき一歩を提案します</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>相談する生徒を選択</label>
+        <select id="advStudentSelect" onchange="renderAdvContext()">
+          <option value="">— 生徒を選択 —</option>
+        </select>
+      </div>
+      <div id="advStudentContext" style="margin-bottom:12px;"></div>
+      <div class="chat-container">
+        <div class="chat-messages" id="advMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="advInput" placeholder="悩みや質問を入力..." onkeydown="if(event.key==='Enter')sendAdvMessage()">
+          <button class="btn btn-warning" onclick="sendAdvMessage()">相談する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TAB: CONVERSATION DB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="tab-convdb" class="tab-content">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:0;border:none;">🗄️ 統合会話データベース</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select id="convToolFilter" onchange="renderConvDB()" style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:.85em;">
+          <option value="">全ツール</option>
+          <option value="genesis">Genesis</option>
+          <option value="minecraft">Minecraft NPC</option>
+          <option value="advisor">やる事相談AI</option>
+        </select>
+        <select id="convStudentFilter" onchange="renderConvDB()" style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:.85em;">
+          <option value="">全生徒</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearConvDB()">🗑️ 全削除</button>
+      </div>
+    </div>
+    <div id="convDBList"></div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     MODAL: JOB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <h2>💼 案件登録</h2>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>企業名 *</label>
+        <input type="text" id="jCompany" placeholder="例：LocalBrand社">
+      </div>
+      <div class="form-group">
+        <label>案件タイトル *</label>
+        <input type="text" id="jTitle" placeholder="例：SNS運用代行">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>案件説明</label>
+      <textarea id="jDesc" placeholder="案件の詳細、目標、期待するアウトプットを記入..."></textarea>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>カテゴリ</label>
+        <select id="jCategory">
+          <option value="web">Web開発</option>
+          <option value="design">デザイン</option>
+          <option value="content">コンテンツ制作</option>
+          <option value="data">データ分析</option>
+          <option value="marketing">マーケティング</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>難易度 (1-5)</label>
+        <select id="jDifficulty">
+          <option value="1">1 — 入門</option>
+          <option value="2" selected>2 — 初級</option>
+          <option value="3">3 — 中級</option>
+          <option value="4">4 — 上級</option>
+          <option value="5">5 — エキスパート</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>必要スキル（カンマ区切り）</label>
+      <input type="text" id="jSkills" placeholder="例：SNS運用, 画像編集, ライティング">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeJobModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveJob()">保存 → タスク自動分解</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: JOB DETAIL -->
+<div class="modal-overlay" id="jobDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <h2 id="jdTitle">案件詳細</h2>
+    <div id="jdBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('jobDetailModal')">閉じる</button>
+      <button class="btn btn-success" id="jdMatchBtn">🎯 自動マッチング実行</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: STUDENT -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <h2 id="studentModalTitle">👨‍🎓 生徒追加</h2>
+    <input type="hidden" id="sEditId">
+    <div class="grid-2">
+      <div class="form-group">
+        <label>名前 *</label>
+        <input type="text" id="sName" placeholder="例：田中ケン">
+      </div>
+      <div class="form-group">
+        <label>年齢</label>
+        <input type="number" id="sAge" placeholder="17" min="10" max="30">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>興味・関心（カンマ区切り）</label>
+      <input type="text" id="sInterests" placeholder="例：ゲーム, プログラミング, 音楽">
+    </div>
+    <div class="form-group">
+      <label>保有スキル（カンマ区切り）</label>
+      <input type="text" id="sSkills" placeholder="例：Python, Unity, Photoshop">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>スキルレベル: <span id="sLevelVal">50</span></label>
+        <input type="range" id="sLevel" min="0" max="100" value="50" oninput="document.getElementById('sLevelVal').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>モチベーション: <span id="sMotiVal">50</span>%</label>
+        <input type="range" id="sMoti" min="0" max="100" value="50" oninput="document.getElementById('sMotiVal').textContent=this.value">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>学習スタイル</label>
+      <select id="sStyle">
+        <option value="visual">視覚型（図や動画で学ぶ）</option>
+        <option value="hands-on">体験型（やりながら学ぶ）</option>
+        <option value="reading">読書型（資料を読んで学ぶ）</option>
+        <option value="social">協調型（人と一緒に学ぶ）</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('studentModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveStudent()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: STUDENT DETAIL -->
+<div class="modal-overlay" id="studentDetailModal">
+  <div class="modal" style="max-width:650px;">
+    <div id="studentDetailBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('studentDetailModal')">閉じる</button>
+      <button class="btn btn-primary" id="sdEditBtn">✏️ 編集</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA LAYER
+// ══════════════════════════════════════════════
+
+function load(key, def) {
+  try { return JSON.parse(localStorage.getItem('gp_' + key)) || def; }
+  catch { return def; }
+}
+function save(key, val) { localStorage.setItem('gp_' + key, JSON.stringify(val)); }
+
+let students = load('students', []);
+let jobs = load('jobs', []);
+let tasks = load('tasks', []);
+let conversations = load('conversations', []);
+let actLog = load('actlog', []);
+
+// ── Sample data ──
+const SAMPLE_STUDENTS = [
+  { id: 's1', name: '田中ケン', age: 17, interests: ['ゲーム', 'プログラミング', 'アニメ'],
+    skills: ['Unity', 'C#', 'Python'], level: 65, motivationScore: 35, learningStyle: 'hands-on' },
+  { id: 's2', name: '佐藤ミキ', age: 16, interests: ['イラスト', 'デザイン', 'SNS'],
+    skills: ['Photoshop', 'Illustrator', 'Canva'], level: 30, motivationScore: 50, learningStyle: 'visual' },
+  { id: 's3', name: '山本リョウ', age: 18, interests: ['音楽', 'コーディング', 'ビジネス'],
+    skills: ['JavaScript', 'React', 'Python', 'DTM'], level: 80, motivationScore: 75, learningStyle: 'hands-on' },
+];
+const SAMPLE_JOBS = [
+  { id: 'j1', company: 'LocalBrand社', title: 'SNS運用代行', category: 'marketing',
+    description: 'Instagram・Twitter を中心に週3投稿。ターゲットは10〜20代。', requiredSkills: ['SNS運用', '画像編集', 'ライティング'], difficulty: 2, status: 'open', tasks: [] },
+  { id: 'j2', company: 'StartupXYZ', title: 'ランディングページ制作', category: 'web',
+    description: '新サービス用のLPをデザイン〜実装まで。レスポンシブ対応必須。', requiredSkills: ['HTML/CSS', 'JavaScript', 'UIデザイン'], difficulty: 3, status: 'open', tasks: [] },
+  { id: 'j3', company: '地域NPO', title: 'データ分析レポート', category: 'data',
+    description: 'アンケートデータ（n=200）を集計・可視化し、報告書を作成。', requiredSkills: ['Excel/スプレッドシート', 'データ可視化', 'レポート作成'], difficulty: 2, status: 'open', tasks: [] },
+];
+
+function initSampleData() {
+  if (students.length === 0) {
+    students = SAMPLE_STUDENTS;
+    save('students', students);
+  }
+  if (jobs.length === 0) {
+    jobs = SAMPLE_JOBS.map(j => ({ ...j, tasks: [] }));
+    // Auto-decompose sample jobs
+    jobs.forEach(j => { j.tasks = decomposeJob(j); });
+    save('jobs', jobs);
+    addLog('system', null, 'サンプルデータをロードしました（生徒3名・案件3件）');
+  }
+}
+
+// ══════════════════════════════════════════════
+// TASK DECOMPOSITION
+// ══════════════════════════════════════════════
+
+const TASK_TEMPLATES = {
+  web:       [['要件定義・仕様確認', 1], ['UIデザイン・ワイヤーフレーム', 2], ['フロントエンド実装', 3], ['テスト・修正', 1]],
+  design:    [['市場・トレンド調査', 1], ['コンセプト立案', 2], ['デザイン案作成', 3], ['フィードバック修正', 1]],
+  content:   [['テーマリサーチ', 1], ['原稿執筆', 3], ['編集・校正', 1], ['公開・効果測定', 1]],
+  data:      [['データ収集・整理', 2], ['クレンジング・前処理', 2], ['分析・可視化', 3], ['レポート作成', 2]],
+  marketing: [['市場調査・競合分析', 2], ['戦略立案', 2], ['コンテンツ制作', 3], ['KPI計測・改善', 1]],
+};
+
+function decomposeJob(job) {
+  const templates = TASK_TEMPLATES[job.category] || TASK_TEMPLATES.content;
+  return templates.map((t, i) => ({
+    id: `t_${job.id}_${i}`,
+    jobId: job.id,
+    title: t[0],
+    requiredSkill: job.requiredSkills[Math.min(i, job.requiredSkills.length - 1)] || job.requiredSkills[0],
+    difficulty: Math.min(5, Math.max(1, Math.round(job.difficulty * t[1] * 0.6))),
+    estimatedHours: t[1] * 4,
+    assignedStudentId: null,
+    status: 'open'
+  }));
+}
+
+// ══════════════════════════════════════════════
+// MATCHING ALGORITHM
+// ══════════════════════════════════════════════
+
+function calcMatchScore(student, task, job) {
+  let score = 0;
+
+  // スキル一致
+  const skillMatch = (job.requiredSkills || []).filter(s =>
+    student.skills.some(ss => ss.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(ss.toLowerCase()))
+  ).length;
+  score += skillMatch * 30;
+
+  // 興味一致
+  const interestMatch = student.interests.filter(i =>
+    job.description.toLowerCase().includes(i.toLowerCase()) ||
+    job.title.toLowerCase().includes(i.toLowerCase())
+  ).length;
+  score += interestMatch * 20;
+
+  // 難易度適合 (level/20 vs difficulty、近いほど高スコア)
+  const levelEquiv = student.level / 20;
+  const diff = Math.abs(levelEquiv - task.difficulty);
+  score += Math.max(0, 20 - diff * 8);
+
+  // 既に担当中のタスク数ペナルティ
+  const busyCount = tasks.filter(t => t.assignedStudentId === student.id && t.status === 'in_progress').length;
+  score -= busyCount * 15;
+
+  // モチベーション低い → 簡単タスク優先ボーナス
+  if (student.motivationScore < 50 && task.difficulty <= 2) score += 10;
+  if (student.motivationScore < 30 && task.difficulty === 1) score += 15;
+
+  return Math.max(0, Math.round(score));
+}
+
+function autoMatch(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const jobTasks = (job.tasks || []).filter(t => !t.assignedStudentId);
+
+  jobTasks.forEach(task => {
+    const ranked = students.map(s => ({ student: s, score: calcMatchScore(s, task, job) }))
+      .sort((a, b) => b.score - a.score);
+    if (ranked.length > 0 && ranked[0].score > 0) {
+      task.assignedStudentId = ranked[0].student.id;
+      task.status = 'in_progress';
+      addLog('genesis', ranked[0].student.id,
+        `「${task.title}」→ ${ranked[0].student.name} にアサイン（スコア: ${ranked[0].score}）`);
+    }
+  });
+
+  save('jobs', jobs);
+  toast(`マッチング完了！${jobTasks.length} タスクを割り振りました`, 'success');
+  renderDashboard();
+  renderJobs();
+}
+
+// ══════════════════════════════════════════════
+// AI RESPONSES (MOCK)
+// ══════════════════════════════════════════════
+
+function getMcResponse(studentId, userMsg) {
+  const student = students.find(s => s.id === studentId);
+  const assignedTasks = jobs.flatMap(j => j.tasks || []).filter(t => t.assignedStudentId === studentId);
+  const name = student ? student.name : 'プレイヤー';
+  const moti = student ? student.motivationScore : 50;
+  const skill = student ? student.skills[0] : 'スキル';
+  const task = assignedTasks[0];
+
+  const lowMotiResponses = [
+    `やあ、${name}！ダイヤモンドも掘り続ければ必ず見つかる。${task ? `「${task.title}」の最初の一歩を踏み出してみよう。` : 'まずはツルハシを持つところから始めようか。'}`,
+    `ネザーポータルも、黒曜石を1個ずつ積まないと作れない。今日は1個積むだけでいい。`,
+    `クリーパーに爆発されても、また建て直せばいい。失敗は素材になるんだ、${name}。`,
+    `俺も最初はただの木のツルハシしか持ってなかった。${skill}の力、信じてるぜ！`,
+  ];
+  const normalResponses = [
+    `よし${name}！スキルレベルが上がってきてるな。${task ? `次は「${task.title}」を攻略しよう。` : 'レベルアップおめでとう！'}`,
+    `エンドラを倒すより、毎日コツコツ積み上げる方が強くなれる。着実に進めてるね！`,
+    `あのね、${skill}の使い方を教えてあげようか。ゲームとリアルは意外と似てるんだよ。`,
+  ];
+
+  const pool = moti < 50 ? lowMotiResponses : normalResponses;
+
+  // キーワードマッチ
+  if (userMsg.includes('やる気') || userMsg.includes('無気力') || userMsg.includes('しんどい')) {
+    return `${name}、そういう日もある。でもね、Minecraftでも「今日はログインするだけ」でいい日がある。ログインするだけで十分だ。明日は1ブロック動いてみよう。`;
+  }
+  if (userMsg.includes('タスク') || userMsg.includes('仕事') || userMsg.includes('課題')) {
+    return task
+      ? `「${task.title}」か！難易度${task.difficulty}のクエストだ。推定${task.estimatedHours}時間。一番難しいのは最初の一歩を踏み出すこと。${name}なら絶対できる！`
+      : `今はタスクがアサインされてないな。案件管理タブを見てみよう。新しいクエストが待ってるかもしれない！`;
+  }
+  if (userMsg.includes('スキル') || userMsg.includes('上手く') || userMsg.includes('練習')) {
+    return `${skill}のレベルを上げるには、毎日少しずつやること。Minecraftで経験値を集めるのと同じだ。継続が最強の武器！`;
+  }
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function getAdvisorResponse(studentId, userMsg) {
+  const student = students.find(s => s.id === studentId);
+  if (!student) return '生徒を選択してから相談してください。';
+
+  const assignedTasks = jobs.flatMap(j => j.tasks || []).filter(t => t.assignedStudentId === studentId);
+  const highPriTask = assignedTasks.sort((a, b) => {
+    const ja = jobs.find(j => j.id === a.jobId);
+    const jb = jobs.find(j => j.id === b.jobId);
+    return (ja ? ja.difficulty : 0) - (jb ? jb.difficulty : 0);
+  })[0];
+
+  const moti = student.motivationScore;
+  const name = student.name;
+
+  if (userMsg.includes('何') || userMsg.includes('やること') || userMsg.includes('次') || userMsg.includes('今日')) {
+    if (moti < 40) {
+      return `${name}さん、今は無理しなくていいです。\n\n【今日の提案 🌱】\n${highPriTask ? `① 「${highPriTask.title}」を15分だけ触ってみる\n② やりたくなければ、タスクの説明を読むだけでOK` : '① 好きなことを30分する\n② もし余力があれば、生徒管理で自分のスキルを確認してみる'}\n\n一番大切なのは、今日も「存在してくれていること」です。`;
+    }
+    if (highPriTask) {
+      const job = jobs.find(j => j.id === highPriTask.jobId);
+      return `${name}さんへの今日のおすすめタスク 📋\n\n【優先度 HIGH】\n「${highPriTask.title}」\n案件: ${job ? job.company + ' / ' + job.title : '不明'}\n推定時間: ${highPriTask.estimatedHours}時間\n\n理由: ${name}さんのスキル（${student.skills.join(', ')}）が活かせる内容です。まず最初の30分でアウトラインを書き出してみましょう！`;
+    }
+    return `${name}さん、今はアサインされたタスクがありません。「案件管理」タブで自動マッチングを実行してもらいましょう。あなたのスキル（${student.skills.join(', ')}）に合った案件が見つかるはずです！`;
+  }
+
+  if (userMsg.includes('スキル') || userMsg.includes('強み') || userMsg.includes('得意')) {
+    return `${name}さんの強みを分析しました 💡\n\n【スキル】${student.skills.join(' / ')}\n【興味】${student.interests.join(' / ')}\n\n特に「${student.skills[0]}」は即戦力レベルです。次のレベルアップには「${student.interests[0]}」と組み合わせたプロジェクト経験が効果的です。`;
+  }
+
+  if (userMsg.includes('モチベ') || userMsg.includes('やる気') || userMsg.includes('疲れ')) {
+    const advice = moti < 50
+      ? '完璧にやろうとしない。「今日は5分だけ」という目標に切り替えましょう。'
+      : '調子がいい今のうちに、少し難しいタスクに挑戦するのがおすすめです！';
+    return `${name}さんの現在のモチベーション: ${moti}%\n\n${advice}\n\n休息も成長の一部です。自分を責めないでください 🌿`;
+  }
+
+  const suggestions = [
+    `今の${name}さんに一番合っているのは「体験→振り返り」のサイクルです。小さく試して、学びをメモする習慣をつけましょう。`,
+    `${student.interests[0]}への興味を活かして、関連する実際のプロジェクトに取り組むと成長が速いです。`,
+    `レベル${student.level}の${name}さんなら、難易度${Math.ceil(student.level/25)}前後のタスクが成長ゾーンです。案件管理で確認してみましょう。`,
+  ];
+  return suggestions[Math.floor(Math.random() * suggestions.length)];
+}
+
+// ══════════════════════════════════════════════
+// LOG & CONVERSATION
+// ══════════════════════════════════════════════
+
+function addLog(tool, studentId, message) {
+  const entry = { id: Date.now() + Math.random(), tool, studentId, message, timestamp: new Date().toISOString() };
+  actLog.unshift(entry);
+  if (actLog.length > 100) actLog.pop();
+  save('actlog', actLog);
+  renderActivityLog();
+}
+
+function saveConversation(tool, studentId, message, response) {
+  const entry = { id: Date.now() + Math.random(), timestamp: new Date().toISOString(), tool, studentId, message, response };
+  conversations.unshift(entry);
+  save('conversations', conversations);
+  renderConvDB();
+  renderConvFilters();
+}
+
+// ══════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ══════════════════════════════════════════════
+
+function motiColor(val) {
+  if (val < 30) return '#e17055';
+  if (val < 60) return '#fdcb6e';
+  return '#00b894';
+}
+
+function renderDashboard() {
+  // Stats
+  const totalTasks = jobs.reduce((n, j) => n + (j.tasks || []).length, 0);
+  const matched = jobs.reduce((n, j) => n + (j.tasks || []).filter(t => t.assignedStudentId).length, 0);
+  const lowMoti = students.filter(s => s.motivationScore < 50).length;
+  document.getElementById('statsGrid').innerHTML = [
+    { num: students.length, label: '登録生徒数', icon: '👨‍🎓' },
+    { num: jobs.length, label: '受付案件数', icon: '💼' },
+    { num: totalTasks, label: 'タスク総数', icon: '📋' },
+    { num: matched, label: 'マッチング済', icon: '🎯' },
+    { num: lowMoti, label: '要サポート生徒', icon: '⚠️' },
+    { num: conversations.length, label: 'AI会話記録数', icon: '💬' },
+  ].map(s => `
+    <div class="stat-card">
+      <div style="font-size:1.8em;">${s.icon}</div>
+      <div class="num">${s.num}</div>
+      <div class="label">${s.label}</div>
+    </div>
+  `).join('');
+
+  // Low moti students
+  const low = students.filter(s => s.motivationScore < 60).sort((a, b) => a.motivationScore - b.motivationScore);
+  document.getElementById('lowMotiStudents').innerHTML = low.length
+    ? low.map(s => `
+      <div class="card" style="cursor:pointer" onclick="showStudentDetail('${s.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <strong>${s.name}</strong>
+          <span class="badge ${s.motivationScore < 30 ? 'badge-danger' : 'badge-warning'}">${s.motivationScore}%</span>
+        </div>
+        <div style="font-size:.8em;color:var(--text-dim);margin-bottom:6px;">${s.interests.join(' · ')}</div>
+        <div class="moti-bar"><div class="moti-fill" style="width:${s.motivationScore}%;background:${motiColor(s.motivationScore)};"></div></div>
+      </div>
+    `).join('')
+    : '<div class="empty-state"><div class="icon">🎉</div><div>全員モチベーション高め！</div></div>';
+
+  // Recent matches
+  const recentAssigned = jobs.flatMap(j => (j.tasks || []).filter(t => t.assignedStudentId).map(t => ({...t, jobTitle: j.title, company: j.company})))
+    .slice(0, 5);
+  document.getElementById('recentMatches').innerHTML = recentAssigned.length
+    ? recentAssigned.map(t => {
+        const s = students.find(st => st.id === t.assignedStudentId);
+        return `
+          <div class="card">
+            <div style="font-size:.8em;color:var(--text-dim);">${t.company} / ${t.jobTitle}</div>
+            <div style="margin:4px 0;font-size:.9em;">${t.title}</div>
+            <div style="font-size:.8em;color:var(--success);">→ ${s ? s.name : '未割当'}</div>
+          </div>
+        `;
+      }).join('')
+    : '<div class="empty-state"><div class="icon">🔍</div><div>マッチングを実行してください</div></div>';
+
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById('activityLog');
+  if (!el) return;
+  if (actLog.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:20px"><div>ログはまだありません</div></div>';
+    return;
+  }
+  el.innerHTML = actLog.slice(0, 30).map(e => {
+    const s = e.studentId ? students.find(st => st.id === e.studentId) : null;
+    const t = new Date(e.timestamp).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="log-item">
+        <span class="log-time">${t}</span>
+        <span class="log-tool log-${e.tool}">${e.tool}</span>
+        <span>${s ? `[${s.name}] ` : ''}${e.message}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderJobs() {
+  const el = document.getElementById('jobsList');
+  if (!el) return;
+  if (jobs.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">💼</div><div>案件がまだありません</div></div>';
+    return;
+  }
+  el.innerHTML = jobs.map(j => {
+    const assigned = (j.tasks || []).filter(t => t.assignedStudentId).length;
+    const total = (j.tasks || []).length;
+    const pct = total > 0 ? Math.round(assigned / total * 100) : 0;
+    const diffStars = '★'.repeat(j.difficulty) + '☆'.repeat(5 - j.difficulty);
+    const catColors = { web: 'var(--accent)', design: '#fd79a8', content: 'var(--warning)', data: 'var(--success)', marketing: '#74b9ff' };
+    return `
+      <div class="card" style="cursor:pointer" onclick="showJobDetail('${j.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:.75em;color:var(--text-dim);">${j.company}</div>
+            <div style="font-size:1.1em;font-weight:700;margin:2px 0;">${j.title}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+              <span class="badge badge-accent" style="background:${catColors[j.category]||'var(--accent)'}22;border-color:${catColors[j.category]||'var(--accent)'};">${j.category}</span>
+              <span style="color:var(--warning);font-size:.85em;">${diffStars}</span>
+              ${(j.requiredSkills||[]).map(s => `<span class="tag tag-skill">${s}</span>`).join('')}
+            </div>
+          </div>
+          <div style="text-align:right;min-width:100px;">
+            <div style="font-size:.8em;color:var(--text-dim);">${assigned}/${total} タスク割当済</div>
+            <div class="level-bar" style="margin-top:6px;height:8px;">
+              <div class="level-fill" style="width:${pct}%;background:${pct===100?'var(--success)':'var(--accent)'};"></div>
+            </div>
+          </div>
+        </div>
+        ${(j.tasks || []).length > 0 ? `
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            ${(j.tasks||[]).map((t, i) => {
+              const s = t.assignedStudentId ? students.find(st => st.id === t.assignedStudentId) : null;
+              return `
+                <div class="task-item">
+                  <div class="task-num">${i+1}</div>
+                  <div class="task-title">${t.title}</div>
+                  <div style="font-size:.75em;color:var(--text-dim);">${t.estimatedHours}h</div>
+                  ${s ? `<span class="badge badge-success">${s.name}</span>` : '<span class="badge" style="border-color:var(--border);color:var(--text-dim);">未割当</span>'}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderStudents() {
+  const el = document.getElementById('studentGrid');
+  if (!el) return;
+  if (students.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">👨‍🎓</div><div>生徒がまだいません</div></div>';
+    return;
+  }
+  const avatars = ['🎮', '🎨', '🎵', '💻', '📚', '🔬'];
+  el.innerHTML = students.map((s, i) => {
+    const assignedCount = jobs.flatMap(j => j.tasks || []).filter(t => t.assignedStudentId === s.id).length;
+    return `
+      <div class="student-card" onclick="showStudentDetail('${s.id}')">
+        <div class="student-avatar" style="background:${s.motivationScore < 50 ? 'rgba(225,112,85,.15)' : 'rgba(108,92,231,.15)'};">
+          ${avatars[i % avatars.length]}
+        </div>
+        <div style="font-size:1.1em;font-weight:700;">${s.name}</div>
+        <div style="font-size:.8em;color:var(--text-dim);margin-bottom:8px;">${s.age}歳 · ${s.learningStyle}</div>
+        <div style="margin-bottom:8px;">${s.skills.slice(0, 3).map(sk => `<span class="tag tag-skill">${sk}</span>`).join('')}</div>
+        <div style="font-size:.8em;margin-bottom:4px;display:flex;justify-content:space-between;">
+          <span>Level</span><span>${s.level}</span>
+        </div>
+        <div class="level-bar"><div class="level-fill" style="width:${s.level}%;"></div></div>
+        <div style="font-size:.8em;margin-top:8px;margin-bottom:4px;display:flex;justify-content:space-between;">
+          <span>モチベ</span><span style="color:${motiColor(s.motivationScore)};">${s.motivationScore}%</span>
+        </div>
+        <div class="moti-bar"><div class="moti-fill" style="width:${s.motivationScore}%;background:${motiColor(s.motivationScore)};"></div></div>
+        <div style="margin-top:10px;font-size:.8em;color:var(--text-dim);">担当タスク: ${assignedCount}件</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderConvDB() {
+  const toolF = document.getElementById('convToolFilter')?.value || '';
+  const stuF = document.getElementById('convStudentFilter')?.value || '';
+  let list = [...conversations];
+  if (toolF) list = list.filter(c => c.tool === toolF);
+  if (stuF) list = list.filter(c => c.studentId === stuF);
+
+  const el = document.getElementById('convDBList');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><div>会話記録がありません</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const s = students.find(st => st.id === c.studentId);
+    const dt = new Date(c.timestamp).toLocaleString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const toolLabel = { genesis: 'Genesis', minecraft: 'Minecraft NPC', advisor: 'やる事相談AI' }[c.tool] || c.tool;
+    return `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="log-tool log-${c.tool}">${toolLabel}</span>
+            ${s ? `<span style="font-size:.85em;">${s.name}</span>` : ''}
+          </div>
+          <span style="font-size:.75em;color:var(--text-dim);">${dt}</span>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px;">
+          <div style="font-size:.75em;color:var(--text-dim);margin-bottom:4px;">ユーザー</div>
+          <div style="font-size:.9em;">${c.message}</div>
+        </div>
+        <div style="background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:8px;padding:10px;">
+          <div style="font-size:.75em;color:var(--accent2);margin-bottom:4px;">AI 応答</div>
+          <div style="font-size:.9em;white-space:pre-line;">${c.response}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderConvFilters() {
+  const selStu = document.getElementById('convStudentFilter');
+  if (!selStu) return;
+  const cur = selStu.value;
+  selStu.innerHTML = '<option value="">全生徒</option>' +
+    students.map(s => `<option value="${s.id}" ${cur===s.id?'selected':''}>${s.name}</option>`).join('');
+}
+
+function renderStudentSelects() {
+  ['mcStudentSelect', 'advStudentSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— 生徒を選択 —</option>' +
+      students.map(s => `<option value="${s.id}" ${cur===s.id?'selected':''}>${s.name}（モチベ: ${s.motivationScore}%）</option>`).join('');
+  });
+}
+
+// ══════════════════════════════════════════════
+// CONTEXT PANELS
+// ══════════════════════════════════════════════
+
+function renderMcContext() {
+  const sid = document.getElementById('mcStudentSelect').value;
+  const el = document.getElementById('mcStudentContext');
+  if (!sid) { el.innerHTML = ''; return; }
+  const s = students.find(st => st.id === sid);
+  if (!s) return;
+  const assignedTasks = jobs.flatMap(j => j.tasks || []).filter(t => t.assignedStudentId === sid);
+  el.innerHTML = `
+    <div style="background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);border-radius:8px;padding:12px;font-size:.85em;">
+      <strong style="color:var(--mc-green);">📊 ${s.name} の現在状態</strong>
+      <div style="margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;">
+        <span>Level: ${s.level}</span>
+        <span>モチベ: <span style="color:${motiColor(s.motivationScore)}">${s.motivationScore}%</span></span>
+        <span>担当タスク: ${assignedTasks.length}件</span>
+      </div>
+      ${assignedTasks.length ? `<div style="margin-top:4px;color:var(--text-dim);">現在のクエスト: ${assignedTasks.map(t=>t.title).join(' / ')}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderAdvContext() {
+  const sid = document.getElementById('advStudentSelect').value;
+  const el = document.getElementById('advStudentContext');
+  if (!sid) { el.innerHTML = ''; return; }
+  const s = students.find(st => st.id === sid);
+  if (!s) return;
+  el.innerHTML = `
+    <div style="background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.25);border-radius:8px;padding:12px;font-size:.85em;">
+      <strong style="color:var(--warning);">📋 ${s.name} のプロフィール</strong>
+      <div style="margin-top:6px;">
+        スキル: ${s.skills.map(sk => `<span class="tag tag-skill">${sk}</span>`).join('')}
+      </div>
+      <div style="margin-top:4px;">
+        興味: ${s.interests.map(i => `<span class="tag tag-interest">${i}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// CHAT SEND
+// ══════════════════════════════════════════════
+
+function appendChatBubble(containerId, role, name, text) {
+  const el = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${role}`;
+  if (role === 'ai' && name) div.innerHTML = `<div class="ai-name">${name}</div>${text.replace(/\n/g,'<br>')}`;
+  else div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendMcMessage() {
+  const sid = document.getElementById('mcStudentSelect').value;
+  const input = document.getElementById('mcInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!sid) { toast('生徒を選択してください', 'info'); return; }
+
+  input.value = '';
+  appendChatBubble('mcMessages', 'user', null, msg);
+
+  setTimeout(() => {
+    const res = getMcResponse(sid, msg);
+    appendChatBubble('mcMessages', 'ai', '⚔️ スティーブ NPC', res);
+    saveConversation('minecraft', sid, msg, res);
+    addLog('minecraft', sid, `会話: "${msg.slice(0,30)}..."`);
+  }, 600);
+}
+
+function sendAdvMessage() {
+  const sid = document.getElementById('advStudentSelect').value;
+  const input = document.getElementById('advInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!sid) { toast('生徒を選択してください', 'info'); return; }
+
+  input.value = '';
+  appendChatBubble('advMessages', 'user', null, msg);
+
+  setTimeout(() => {
+    const res = getAdvisorResponse(sid, msg);
+    appendChatBubble('advMessages', 'ai', '🧭 やる事相談AI', res);
+    saveConversation('advisor', sid, msg, res);
+    addLog('advisor', sid, `相談: "${msg.slice(0,30)}..."`);
+  }, 800);
+}
+
+// ══════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════
+
+function openJobModal() { document.getElementById('jobModal').classList.add('open'); }
+function closeJobModal() { document.getElementById('jobModal').classList.remove('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function saveJob() {
+  const company = document.getElementById('jCompany').value.trim();
+  const title = document.getElementById('jTitle').value.trim();
+  if (!company || !title) { toast('企業名と案件タイトルを入力してください', 'info'); return; }
+
+  const job = {
+    id: 'j' + Date.now(),
+    company,
+    title,
+    description: document.getElementById('jDesc').value.trim(),
+    category: document.getElementById('jCategory').value,
+    difficulty: parseInt(document.getElementById('jDifficulty').value),
+    requiredSkills: document.getElementById('jSkills').value.split(',').map(s => s.trim()).filter(Boolean),
+    status: 'open',
+    tasks: []
+  };
+  job.tasks = decomposeJob(job);
+  jobs.push(job);
+  save('jobs', jobs);
+
+  closeJobModal();
+  ['jCompany','jTitle','jDesc','jSkills'].forEach(id => document.getElementById(id).value = '');
+  toast(`「${job.title}」を登録。${job.tasks.length}タスクに分解しました`, 'success');
+  addLog('genesis', null, `案件「${job.title}」(${job.company})を登録・${job.tasks.length}タスクに分解`);
+  renderJobs();
+  renderDashboard();
+}
+
+function showJobDetail(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  document.getElementById('jdTitle').textContent = `💼 ${job.company} — ${job.title}`;
+
+  const ranked = students.map(s => {
+    const bestTask = (job.tasks || []).filter(t => !t.assignedStudentId)[0];
+    const score = bestTask ? calcMatchScore(s, bestTask, job) : 0;
+    return { s, score };
+  }).sort((a, b) => b.score - a.score);
+
+  document.getElementById('jdBody').innerHTML = `
+    <div style="color:var(--text-dim);font-size:.9em;margin-bottom:12px;">${job.description}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+      ${(job.requiredSkills||[]).map(s => `<span class="tag tag-skill">${s}</span>`).join('')}
+    </div>
+    <div class="section-title">📋 タスク一覧</div>
+    ${(job.tasks||[]).map((t, i) => {
+      const s = t.assignedStudentId ? students.find(st => st.id === t.assignedStudentId) : null;
+      return `
+        <div class="task-item">
+          <div class="task-num">${i+1}</div>
+          <div class="task-title"><strong>${t.title}</strong><br><span style="font-size:.8em;color:var(--text-dim);">推定 ${t.estimatedHours}h / 難易度 ${'★'.repeat(t.difficulty)}</span></div>
+          ${s ? `<span class="badge badge-success">${s.name}</span>` : '<span class="badge" style="border-color:var(--border);color:var(--text-dim);">未割当</span>'}
+        </div>
+      `;
+    }).join('')}
+
+    <div class="section-title" style="margin-top:20px;">🎯 マッチングスコア（上位生徒）</div>
+    ${ranked.slice(0, 3).map(({s, score}) => {
+      const color = score >= 60 ? 'var(--success)' : score >= 30 ? 'var(--warning)' : 'var(--text-dim)';
+      return `
+        <div class="match-result">
+          <div class="match-score-circle" style="background:${color}22;color:${color};border:2px solid ${color};">${score}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">${s.name}</div>
+            <div style="font-size:.8em;color:var(--text-dim);">Level ${s.level} · モチベ ${s.motivationScore}% · ${s.skills.slice(0,2).join(', ')}</div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+
+  const matchBtn = document.getElementById('jdMatchBtn');
+  matchBtn.onclick = () => { autoMatch(job.id); closeModal('jobDetailModal'); };
+  document.getElementById('jobDetailModal').classList.add('open');
+}
+
+function openStudentModal(sid = null) {
+  const modal = document.getElementById('studentModal');
+  document.getElementById('studentModalTitle').textContent = sid ? '✏️ 生徒編集' : '👨‍🎓 生徒追加';
+  document.getElementById('sEditId').value = sid || '';
+  if (sid) {
+    const s = students.find(st => st.id === sid);
+    if (s) {
+      document.getElementById('sName').value = s.name;
+      document.getElementById('sAge').value = s.age;
+      document.getElementById('sInterests').value = s.interests.join(', ');
+      document.getElementById('sSkills').value = s.skills.join(', ');
+      document.getElementById('sLevel').value = s.level;
+      document.getElementById('sLevelVal').textContent = s.level;
+      document.getElementById('sMoti').value = s.motivationScore;
+      document.getElementById('sMotiVal').textContent = s.motivationScore;
+      document.getElementById('sStyle').value = s.learningStyle;
+    }
+  } else {
+    ['sName','sAge','sInterests','sSkills'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('sLevel').value = 50;
+    document.getElementById('sLevelVal').textContent = 50;
+    document.getElementById('sMoti').value = 50;
+    document.getElementById('sMotiVal').textContent = 50;
+  }
+  modal.classList.add('open');
+}
+
+function saveStudent() {
+  const name = document.getElementById('sName').value.trim();
+  if (!name) { toast('名前を入力してください', 'info'); return; }
+
+  const editId = document.getElementById('sEditId').value;
+  const data = {
+    name,
+    age: parseInt(document.getElementById('sAge').value) || 17,
+    interests: document.getElementById('sInterests').value.split(',').map(s => s.trim()).filter(Boolean),
+    skills: document.getElementById('sSkills').value.split(',').map(s => s.trim()).filter(Boolean),
+    level: parseInt(document.getElementById('sLevel').value),
+    motivationScore: parseInt(document.getElementById('sMoti').value),
+    learningStyle: document.getElementById('sStyle').value,
+  };
+
+  if (editId) {
+    const idx = students.findIndex(s => s.id === editId);
+    if (idx >= 0) { students[idx] = { ...students[idx], ...data }; }
+  } else {
+    students.push({ id: 's' + Date.now(), ...data });
+    addLog('genesis', null, `生徒「${name}」を追加`);
+  }
+  save('students', students);
+  closeModal('studentModal');
+  toast(`${name} を${editId ? '更新' : '追加'}しました`, 'success');
+  renderStudents();
+  renderDashboard();
+  renderStudentSelects();
+  renderConvFilters();
+}
+
+function showStudentDetail(sid) {
+  const s = students.find(st => st.id === sid);
+  if (!s) return;
+  const assignedTasks = jobs.flatMap(j => (j.tasks||[]).map(t => ({...t, jobTitle: j.title, company: j.company}))).filter(t => t.assignedStudentId === sid);
+
+  document.getElementById('studentDetailBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="font-size:3em;">${s.motivationScore < 50 ? '😶' : '😊'}</div>
+      <div>
+        <h2 style="color:var(--accent2);">${s.name}</h2>
+        <div style="font-size:.85em;color:var(--text-dim);">${s.age}歳 · ${s.learningStyle}</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div>
+        <div style="font-size:.8em;color:var(--text-dim);margin-bottom:4px;">スキルレベル</div>
+        <div style="font-size:1.5em;font-weight:700;">${s.level} <span style="font-size:.5em;color:var(--text-dim);">/ 100</span></div>
+        <div class="level-bar"><div class="level-fill" style="width:${s.level}%;"></div></div>
+      </div>
+      <div>
+        <div style="font-size:.8em;color:var(--text-dim);margin-bottom:4px;">モチベーション</div>
+        <div style="font-size:1.5em;font-weight:700;color:${motiColor(s.motivationScore)};">${s.motivationScore}%</div>
+        <div class="moti-bar"><div class="moti-fill" style="width:${s.motivationScore}%;background:${motiColor(s.motivationScore)};"></div></div>
+      </div>
+    </div>
+
+    ${s.motivationScore < 40 ? `
+    <div style="background:rgba(225,112,85,.1);border:1px solid rgba(225,112,85,.3);border-radius:8px;padding:12px;margin-bottom:16px;font-size:.85em;">
+      ⚠️ モチベーションが低い状態です。AI ツールタブから Minecraft NPC やや相談AIでサポートしましょう。
+    </div>` : ''}
+
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.8em;color:var(--text-dim);margin-bottom:6px;">スキル</div>
+      ${s.skills.map(sk => `<span class="tag tag-skill">${sk}</span>`).join('')}
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:.8em;color:var(--text-dim);margin-bottom:6px;">興味・関心</div>
+      ${s.interests.map(i => `<span class="tag tag-interest">${i}</span>`).join('')}
+    </div>
+
+    ${assignedTasks.length ? `
+    <div class="section-title">📋 担当中タスク</div>
+    ${assignedTasks.map(t => `
+      <div class="task-item">
+        <div style="flex:1;">
+          <div style="font-size:.85em;">${t.company} / ${t.jobTitle}</div>
+          <div style="font-weight:600;">${t.title}</div>
+        </div>
+        <span class="badge badge-accent">${'★'.repeat(t.difficulty)}</span>
+      </div>
+    `).join('')}
+    ` : '<div style="color:var(--text-dim);font-size:.85em;">まだタスクがアサインされていません</div>'}
+  `;
+
+  document.getElementById('sdEditBtn').onclick = () => {
+    closeModal('studentDetailModal');
+    openStudentModal(sid);
+  };
+  document.getElementById('studentDetailModal').classList.add('open');
+}
+
+// ══════════════════════════════════════════════
+// CONV DB CONTROLS
+// ══════════════════════════════════════════════
+
+function clearConvDB() {
+  if (!confirm('全会話履歴を削除しますか？')) return;
+  conversations = [];
+  save('conversations', conversations);
+  renderConvDB();
+  toast('会話履歴を削除しました', 'info');
+}
+
+// ══════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    if (btn.getAttribute('onclick').includes(name)) btn.classList.add('active');
+  });
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'jobs') renderJobs();
+  if (name === 'students') renderStudents();
+  if (name === 'convdb') { renderConvDB(); renderConvFilters(); }
+}
+
+function switchSubtab(name) {
+  document.querySelectorAll('.subtab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.subtab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('subtab-' + name).classList.add('active');
+  document.querySelectorAll('.subtab-btn').forEach(btn => {
+    if (btn.getAttribute('onclick').includes(name)) btn.classList.add('active');
+  });
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+
+initSampleData();
+renderDashboard();
+renderStudentSelects();
+renderConvFilters();
+</script>
+</body>
+</html>
