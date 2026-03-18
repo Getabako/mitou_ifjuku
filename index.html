@@ -315,6 +315,8 @@ body {
   <a href="#sec-personal3">提案者3</a>
   <a href="#sec-personal3-cont">提案者3(続)</a>
   <a href="#sec-member4">提案者4有無</a>
+  <a href="#sec-personal4">提案者4</a>
+  <a href="#sec-personal4-cont">提案者4(続)</a>
   <a href="#sec-project">プロジェクト概要</a>
   <a href="#sec-confirm">確認事項</a>
   <a href="#sec-files">ファイル</a>
@@ -1183,7 +1185,7 @@ const formData = [
       { num:26, q:"提案者2 氏名（氏フリガナ）", req:true, type:"text", answer:"ヤマザキ" },
       { num:27, q:"提案者2 氏名（名フリガナ）", req:true, type:"text", answer:"タクミ" },
       { num:28, q:"提案者2 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
-      { num:29, q:"提案者2 生年月日", req:true, type:"text", answer:"2006/02/02" },
+      { num:29, q:"提案者2 生年月日", req:true, type:"text", answer:"2007/02/02" },
       { num:30, q:"提案者2 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
       { num:31, q:"提案者2 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"塾長" },
       { num:32, q:"提案者2 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"" }
@@ -1223,9 +1225,9 @@ const formData = [
       { num:43, q:"提案者3 氏名（氏フリガナ）", req:true, type:"text", answer:"イノウエ" },
       { num:44, q:"提案者3 氏名（名フリガナ）", req:true, type:"text", answer:"ハルト" },
       { num:45, q:"提案者3 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
-      { num:46, q:"提案者3 生年月日", req:true, type:"text", answer:"2026/02/11" },
+      { num:46, q:"提案者3 生年月日", req:true, type:"text", answer:"2007/06/02" },
       { num:47, q:"提案者3 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
-      { num:48, q:"提案者3 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"フリーランス" },
+      { num:48, q:"提案者3 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"CFO" },
       { num:49, q:"提案者3 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
     ]
   },
@@ -1248,7 +1250,39 @@ const formData = [
     title: "ほかのメンバーについて（提案者4）",
     page: "17/56",
     items: [
-      { num:56, q:"提案者4のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+      { num:56, q:"提案者4のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"はい" }
+    ]
+  },
+  // Section: 提案者4 個人情報
+  {
+    section: "sec-personal4",
+    title: "提案者の個人情報（入力1）― 提案者4",
+    page: "18/56",
+    items: [
+      { num:"4-1", q:"提案者4 氏名（氏）", req:true, type:"text", answer:"小林" },
+      { num:"4-2", q:"提案者4 氏名（名）", req:true, type:"text", answer:"正宗" },
+      { num:"4-3", q:"提案者4 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:"4-4", q:"提案者4 氏名（氏フリガナ）", req:true, type:"text", answer:"コバヤシ" },
+      { num:"4-5", q:"提案者4 氏名（名フリガナ）", req:true, type:"text", answer:"マサムネ" },
+      { num:"4-6", q:"提案者4 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:"4-7", q:"提案者4 生年月日", req:true, type:"text", answer:"2011/12/07" },
+      { num:"4-8", q:"提案者4 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
+      { num:"4-9", q:"提案者4 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"副塾長" },
+      { num:"4-10", q:"提案者4 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  {
+    section: "sec-personal4-cont",
+    title: "提案者4の個人情報（つづき）",
+    page: "19/56",
+    items: [
+      { num:"4-11", q:"提案者4 そのほかの所属・在籍組織名", req:false, type:"text", answer:"秋田クラーク高等学院" },
+      { num:"4-12", q:"提案者4 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"ITプログラミングコース" },
+      { num:"4-13", q:"提案者4 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"" },
+      { num:"4-14", q:"提案者4 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:"4-15", q:"提案者4 略歴", req:true, type:"text", answer:"秋田クラーク高等学院ITプログラミングコース在学中" },
+      { num:"4-16", q:"提案者4 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり" },
+      { num:"4-17", q:"提案者4 保護者許可", req:true, type:"text", answer:"保護者許可済み" }
     ]
   },
   // Section: プロジェクト概要
@@ -1257,7 +1291,7 @@ const formData = [
     title: "申請金額とプロジェクトの概要（入力2）",
     page: "34/56",
     items: [
-      { num:57, q:"プロジェクト名（30字以内）", req:true, type:"text", answer:"if(塾)の才能爆発教育〜発達特性×AI×起業家精神", desc:"提案内容を的確かつ具体的に表現し、用いる技術と解決しようとする課題が読み取れる簡潔でわかり易い名称としてください。" },
+      { num:57, q:"プロジェクト名（30字以内）", req:true, type:"text", answer:"Genesis：発達特性×AI認知適応型教育OS", desc:"提案内容を的確かつ具体的に表現し、用いる技術と解決しようとする課題が読み取れる簡潔でわかり易い名称としてください。" },
       { num:58, q:"実施費用総額", req:true, type:"text", answer:"16,000,000", desc:"半角数字で3桁コンマ（,）区切りで記入してください。時間単価×作業時間で計算される金額です。" },
       { num:59, q:"提案プロジェクト概要（600字〜1,000字程度）", req:true, type:"text", answer:"本プロジェクトは、既存の画一的な教育環境に不適応を起こしている神経多様性児（ADHD/ASD等）に対し、AIによる「完全個別最適化」と「自律的な相互扶助」を提供するメタバース空間『Genesis』を開発するものである。\n\n1. 没入型アセスメント（The Decoder）：ユーザーは初期の「何もない空間」での建築ミッションを通じ、視線・操作ログ・バイタル等のマルチモーダルデータから、従来の検査では不可能な深層的な発達特性や認知バイアスをAIにより解析される。\n\n2. ワールド＝ポートフォリオ（The Portfolio）：解析結果に基づき、AIバディがその子に最適な「探究クエスト」を生成。獲得した能力は「自動化された農場」や「高度な建築物」等の「スキルオブジェクト」として具現化され、空間そのものが「3D職務経歴書」となる。\n\n3. スキル共有によるシナジー創出（The Synergy）：ユーザー間で「苦手なタスク」を依頼し合うギルド機能を実装。依頼が達成されると、提供者のスキルオブジェクトが依頼者のワールドにも生成（インストール）される。これにより、不得意分野を他者の才能で補完し合う「凸凹の結合」を可視化し、自然発生的なDAO型コミュニティを形成する。\n\n最終的には、この経済圏に実社会企業のタスクを接続し、排除されていた異能を最短ルートで社会実装するエコシステムを構築する。", desc:"提案プロジェクト詳細資料（ファイル2）に記載する内容の中で重要なポイントを中心に、全体の概要を簡潔にまとめてください。" },
       { num:60, q:"知的財産権の権利情報", req:false, type:"text", answer:"minecraft", desc:"提案プロジェクトに関する知的財産権の権利情報を全て記載してください。第三者が持つ権利を利用して開発を行う場合にもすべて記載してください。" }
