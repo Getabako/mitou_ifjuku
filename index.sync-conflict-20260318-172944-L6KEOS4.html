@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis - 未踏アドバンスト応募フォーム管理</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --card-hover: #1a1a28;
+  --border: #2a2a3a;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #e17055;
+  --text: #dfe6e9;
+  --text-dim: #636e72;
+  --required: #e17055;
+  --optional: #00b894;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+.header {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #fd79a8 100%);
+  padding: 40px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90" opacity=".05">🧠</text></svg>') repeat;
+  background-size: 80px;
+}
+.header h1 {
+  font-size: 2.5em;
+  font-weight: 800;
+  position: relative;
+  text-shadow: 2px 2px 4px rgba(0,0,0,.3);
+}
+.header p { position: relative; opacity: .9; margin-top: 8px; font-size: 1.1em; }
+.progress-bar-container {
+  background: var(--card);
+  padding: 20px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.progress-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .9em; }
+.progress-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 4px;
+  transition: width .5s ease;
+}
+.nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  position: sticky;
+  top: 60px;
+  z-index: 99;
+}
+.nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .8em;
+  border: 1px solid var(--border);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.nav a:hover, .nav a.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+.section-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 40px 0 20px;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title .badge {
+  background: rgba(255,255,255,.2);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: .6em;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all .2s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.card-header .q-num {
+  background: var(--accent);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.card-header .q-title { flex: 1; margin-left: 12px; font-weight: 600; }
+.card-header .q-tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: .7em;
+  font-weight: 600;
+}
+.tag-required { background: rgba(225,112,85,.2); color: var(--required); }
+.tag-optional { background: rgba(0,184,148,.2); color: var(--optional); }
+.tag-filled { background: rgba(0,184,148,.3); color: var(--success); }
+.tag-empty { background: rgba(253,203,110,.2); color: var(--warning); }
+.card-body { padding: 20px; }
+.card-body .description {
+  font-size: .85em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(255,255,255,.03);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+.card-body .answer {
+  background: rgba(108,92,231,.08);
+  border: 1px solid rgba(108,92,231,.2);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: .95em;
+  white-space: pre-wrap;
+  position: relative;
+  min-height: 40px;
+}
+.card-body .answer.empty {
+  background: rgba(253,203,110,.05);
+  border-color: rgba(253,203,110,.2);
+  color: var(--text-dim);
+  font-style: italic;
+}
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .75em;
+  transition: all .2s;
+  opacity: .7;
+}
+.copy-btn:hover { opacity: 1; transform: scale(1.05); }
+.copy-btn.copied { background: var(--success); }
+.select-answer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.select-option {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: .85em;
+  cursor: default;
+}
+.select-option.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.doc-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.doc-section-header {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(108,92,231,.15), rgba(162,155,254,.08));
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.doc-section-header h3 { font-size: 1.2em; }
+.doc-section-body { padding: 24px; }
+.doc-section-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+}
+.doc-text {
+  background: rgba(108,92,231,.05);
+  border: 1px solid rgba(108,92,231,.15);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  position: relative;
+  line-height: 1.8;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 20px 0 40px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-card .num { font-size: 2em; font-weight: 800; }
+.stat-card .label { font-size: .8em; color: var(--text-dim); margin-top: 4px; }
+.stat-card.total .num { color: var(--accent2); }
+.stat-card.filled .num { color: var(--success); }
+.stat-card.empty-stat .num { color: var(--warning); }
+.stat-card.required .num { color: var(--required); }
+.file-upload-card {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.file-upload-card .icon { font-size: 2em; margin-bottom: 10px; }
+.file-upload-card .name { font-weight: 600; margin-bottom: 4px; }
+.file-upload-card .spec { font-size: .8em; color: var(--text-dim); }
+@media(max-width: 768px) {
+  .header h1 { font-size: 1.5em; }
+  .nav { top: 50px; }
+  .container { padding: 15px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Genesis - 未踏アドバンスト応募管理</h1>
+  <p>2026年度上期 未踏アドバンスト事業 応募情報入力フォーム 全回答一覧</p>
+  <div style="margin-top:12px;">
+    <a href="genesis-platform.html" style="display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:6px 18px;color:#fff;text-decoration:none;font-size:.85em;font-weight:600;backdrop-filter:blur(4px);">
+      ⚡ Genesis Platform デモ →
+    </a>
+  </div>
+</div>
+
+<div class="progress-bar-container">
+  <div class="progress-info">
+    <span id="progress-text">読み込み中...</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<nav class="nav" id="nav">
+  <a href="#sec-personal1">提案者1</a>
+  <a href="#sec-personal1-cont">提案者1(続)</a>
+  <a href="#sec-member2">提案者2有無</a>
+  <a href="#sec-region">居住地域</a>
+  <a href="#sec-personal2">提案者2</a>
+  <a href="#sec-personal2-cont">提案者2(続)</a>
+  <a href="#sec-member3">提案者3有無</a>
+  <a href="#sec-personal3">提案者3</a>
+  <a href="#sec-personal3-cont">提案者3(続)</a>
+  <a href="#sec-member4">提案者4有無</a>
+  <a href="#sec-project">プロジェクト概要</a>
+  <a href="#sec-confirm">確認事項</a>
+  <a href="#sec-files">ファイル</a>
+  <a href="#sec-docs">詳細資料</a>
+  <a href="#sec-file-strategy">ファイル戦略</a>
+</nav>
+
+<div class="container">
+
+<div class="stats" id="stats">
+  <div class="stat-card total"><div class="num" id="stat-total">77</div><div class="label">全質問数</div></div>
+  <div class="stat-card filled"><div class="num" id="stat-filled">0</div><div class="label">入力済み</div></div>
+  <div class="stat-card empty-stat"><div class="num" id="stat-empty">0</div><div class="label">未入力</div></div>
+  <div class="stat-card required"><div class="num" id="stat-req">64</div><div class="label">必須項目</div></div>
+</div>
+
+<div id="form-content"></div>
+
+<!-- 詳細資料セクション -->
+<div id="sec-docs">
+<div class="section-title">📄 提案プロジェクト詳細資料（ファイル2用）<span class="badge">Word 5-10枚</span></div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>① プロジェクトの背景・目的・目標</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-bg')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-bg">1-1. 背景：教育システムの「二重の取りこぼし」
+
+現在の教育は、主に「平均的な学習速度・平均的な動機づけ」を前提に設計されています。
+この前提から外れる層として、第一にADHD/ASD等の神経多様性を持つ子どもたちがいます。彼らは本来、強い偏在能力（突出）を持つにもかかわらず、画一的評価の中で「課題児」として扱われ、自己効力感を失いやすい状況にあります。
+
+同時に近年は、第二の取りこぼしとして、神経多様性の診断有無にかかわらず、ショート動画・ゲーム等の高刺激な受動コンテンツ環境に最適化され、内発的動機づけを失った若者層が拡大しています。教育現場では「やる気を引き出す」「主体性を育てる」といった従来指導が機能せず、教員・支援者の疲弊を招いています。
+
+つまり現場の本質的課題は、特性の問題だけでなく、動機づけに依存した教育OSそのものの限界にあります。提案者（高崎）は、臨床心理士および高校教員として500人以上のWAIS/WISC実施・分析を行ってきた経験から、「能力不足」ではなく「教育インターフェース不適合」が主要因であることを現場で確認してきました。
+
+1-2. 目的：モチベーション非依存の人材化OS「Genesis」の実装
+
+本プロジェクトの目的は、AIとメタバース技術を統合し、神経多様性児への最適化（Stealth WAIS）を核としながら、意欲低下層にも機能する適応型プラットフォーム『Genesis』を構築することです。
+
+Genesisでは、AIバディが行動ログ・操作ログ・認知特性をもとに、本人の意思決定負荷を最小化した超微細タスク（マイクロクエスト）を自動生成し、連続提示します。ユーザーは「やる気」や抽象的な目標設定を要求されず、提示された最小単位タスクを処理するだけで前進できます。
+
+さらにタスクは抽象的な学習課題ではなく、企業BPO等の実務を分解したクエストとして提供し、成果に対する実報酬を紐づけます。これにより「学ぶ」と「稼ぐ」を分断しない実装を目指します。
+
+1-3. 目標：「保護対象」から「生産主体」への転換
+
+最終ゴールは、教育から実社会（労働・経済）へシームレスに接続する人材開発エコシステムを確立し、若者を「消費主体」から「生産主体」へ転換することです。
+
+・短期目標：Genesis上で、認知特性に応じたマイクロクエスト遂行により、学習継続率・タスク完遂率・実報酬獲得を実証する。
+・中期目標：教育システム内で企業業務を安全に流通させる仕組みを確立し、「やる気待ち」に依存しない育成モデルを成立させる。
+・長期目標：不登校・神経多様性・意欲低下層を含む広範な若者を、実務スキルと継続力を持つ人材として社会に接続し、地域・国家の生産性向上に寄与する。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>② 開発に関する未踏性・期待される効果</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-novel')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-novel">本プロジェクトの未踏性は、「検査」「学習」「就労」を分断せず、同一基盤上で閉ループ化する点にあります。既存の知能検査（WAIS/WISC等）は高ストレス環境での単発評価に留まりやすく、教育現場では評価結果と日常行動・就労接続が断絶しています。Genesisはメタバース内の自然行動から認知特性を推定する「Stealth WAIS」を起点に、クエスト生成と実務接続まで一体実装します。
+
+2-1. 技術的コア①：Stealth WAIS × Quest Compiler（モチベーション非依存設計）
+
+提案者は臨床心理士として500人以上のWAIS/WISCを実施し、「検査数値」と「実際の行動特性」の対応知見を蓄積してきました。Genesisではこの知見をアルゴリズム化し、行動ログから認知プロファイルを推定します。
+
+さらに重要なのは、推定結果を「本人の意思ややる気に依存しない実行単位」へ翻訳するQuest Compilerです。AIバディは、認知負荷・操作ログ・直近の成功率をもとに、タスクをマイクロクエストへ自動分解し、次にやる行動を逐次提示します。
+
+この設計により、従来の「目標設定→やる気喚起→行動」という順序ではなく、「行動成立→成功体験→継続」という逆順で学習・就労を成立させることができます。
+
+2-1-1. 統合AI対話データベース：全タッチポイントの行動・対話記録
+
+Stealth WAISの精度と提案品質を飛躍的に高めるのが、すべてのAI接点を横断する統合データベースである。Genesisエコシステムでは、子どもが関わるあらゆるAIとの対話履歴・活動ログを単一のデータベースに集約する。
+
+具体的には以下のタッチポイントが統合対象となる。
+・Minecraft内AI NPC：ゲーム空間での会話・行動選択・建築プロセス・協働パターン
+・Kitazuna内AI NPC：メタバース空間でのクエスト遂行・対話・問題解決アプローチ
+・eスポーツAIコーチ（e-Bridge）：試合分析中の質問・戦略相談・振り返り対話
+・AIバディ：日常の学習支援・タスク管理・相談内容
+
+これらの対話・活動履歴がすべて1つのデータベースに蓄積されることで、「Minecraftでは空間設計に没頭する」「eスポーツでは戦略分析が得意」「対話では視覚的な説明を好む」といった、単一プラットフォームでは見えない横断的な認知・行動パターンが浮かび上がる。
+
+さらに、蓄積された活動履歴全体に基づき、AIバディが個別最適化された提案を行う。過去にMinecraftで空間設計に強みを見せた生徒には3Dモデリングのクエストを、eスポーツで分析力を発揮した生徒にはデータ分析系のBPOクエストを優先提示する。「今までの全活動を知っているAI」が、その子の強みと成長の文脈を踏まえた次の一手を提案できる──これが従来の断片的な学習支援とGenesisの決定的な違いである。
+
+2-2. 技術的コア②：Education-to-Work Conveyor（教育内経済活動）
+
+Genesisの第二の未踏性は、教育システム内部に実経済活動を埋め込む点です。クエストは抽象課題ではなく、企業BPO等の実務を安全に再構成した作業単位として提供します。
+
+ユーザーはゲーム感覚でクエストを処理し、完了結果は品質評価を経て報酬へ接続されます。これにより「学ぶこと」と「稼ぐこと」が連続化され、特に意欲低下層に対して強い行動トリガーを提供できます。
+
+これは「成績」中心の評価体系では獲得しにくい現実的な自己効力感を形成し、無気力層を実務参加可能な人材へ転換する実装です。
+
+2-3. 技術的コア③：World as a Portfolio + Synergy Install
+
+従来の履歴書では可視化しづらい非認知能力・問題解決過程を、3D空間上の成果物として可視化します（World as a Portfolio）。企業は成果物そのものを探索・評価できます。
+
+また、Synergy Installにより、個人の弱みを他者の強みで補完する相互扶助をシステム化します。これは神経多様性児への適合性を高めるだけでなく、無気力層に対しても「一人で抱え込まない遂行戦略」を学習させる機能として機能します。
+
+2-4. 先行事例との差別化と期待効果
+
+【既存サービスとの差別化】
+・アセスメント：検査室での単発検査 → Genesis: 日常行動ログから継続推定（Stealth WAIS）
+・学習成立条件：本人の動機づけ依存 → Genesis: モチベーション非依存のマイクロクエスト提示
+・社会接続：進路支援中心 → Genesis: 教育内で企業実務クエストを流通
+・成果指標：テスト得点中心 → Genesis: 完遂率・継続率・報酬獲得・成果物品質
+
+【期待される効果】
+・教育現場：やる気喚起に依存した指導負荷を軽減し、支援者の疲弊を抑制
+・ユーザー：意欲の有無に左右されず行動が成立し、継続的な成功体験と実務スキルを獲得
+・社会：不登校・神経多様性・意欲低下層を含む広い層を生産主体へ転換し、地域経済の担い手を増やす</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図1：Stealth WAIS（ステルス・アセスメント）の設計図</p>
+    <img src="images/doc1.png" alt="図1：Stealth WAIS">
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図2：World as a Portfolio の設計図</p>
+    <img src="images/doc2.png" alt="図2：World as a Portfolio">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>③ 開発の具体的な進め方</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-dev')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-dev">3-0. ①②から③への接続
+
+Genesisは、神経多様性への個別最適化（Stealth WAIS）を核にしつつ、意欲低下層にも機能する「モチベーション非依存型」の学習・就労OSを実装する。
+本章では、この構想を実装可能な形に落とし込むために、MVPの範囲、システム構成、開発体制、検証指標、リスク対策を具体化する。
+
+3-0-1. 実証KPI（評価指標）
+・クエスト着手率（提示後24時間以内）
+・クエスト完遂率（週次）
+・継続率（4週/8週）
+・離脱後の再開率
+・BPOクエストの納品受理率
+・1人あたり報酬発生件数/報酬額
+・支援者の介入時間削減率
+
+上記KPIを「意欲の有無に依存しない行動成立」の指標として運用し、従来運用との比較で効果を検証する。
+
+3-1. MVP（最小限の実証プロダクト）の定義
+
+【MVPに含むもの】
+・Unityベースのメタバース空間（既存プロジェクト「Kitazuna」の基盤を活用）
+・Stealth WAISの基本ロジック（処理速度・ワーキングメモリの2指標から開始）
+・AIバディによるクエスト自動生成（LLM連携）
+・スキルオブジェクトの自動生成と表示
+・if(塾)の生徒30名による実証テスト
+
+【MVPに含まないもの（Phase 2以降）】
+・ブロックチェーンによるスキル証明（MVP段階ではサーバーサイドDBで管理）
+・企業タスクとの自動マッチング
+・グローバル展開向けの多言語対応
+
+3-2. システム構成
+
+・Client Layer (Unity/C#): 没入型3D空間、操作ログ収集、リアルタイムUI最適化
+・Server Layer (Python/FastAPI): アセスメント推論エンジン、クエスト生成LLM連携
+・Data Layer (PostgreSQL/Firebase): ユーザーデータ、行動ログ、スキルオブジェクト管理
+
+技術選定の根拠：
+・Unity：チーム全員がUnity開発経験を持ち、既存プロジェクト「Kitazuna」（進捗50%）の資産を直接流用可能。
+・Python/FastAPI：AIモデルの推論パイプライン構築に最適。scikit-learn/PyTorchとの親和性が高い。
+・PostgreSQL：行動ログの時系列データと認知プロファイルの関係を柔軟にクエリするために必要。
+
+3-3. 開発スケジュール（2026年7月〜2027年2月）
+
+7月：キックオフ・基盤構築（Kitazunaからのコア資産移植完了、ログ収集基盤）
+8月：Stealth WAIS α版（PSI・WMI測定クエスト3種の実装、if(塾)5名でのα版テスト）
+9月：AIバディ統合（LLM連携によるクエスト自動生成、成功率80%以上）
+10月：スキルオブジェクト実装（タスク達成→3Dオブジェクト自動生成）
+11月：ギルド・シナジー機能（if(塾)30名全員での実証テスト）
+12月：企業タスク接続（BPOクエスト化、1社以上の企業タスク稼働）
+1月：最適化・改善（アセスメント精度の改善、UX改善）
+2月：成果報告・事業化準備（実証データの分析、最初の売上達成）
+
+3-4. 開発体制（Team Genesis）
+
+PM / Lead Developer：高崎 翔太
+  責務：アセスメントロジック設計、Unity開発、教師データ作成、AI実装
+  スキル：Unity/C#、ゲーム開発、AI活用開発、臨床心理（WAIS/WISC 500人以上実施）
+
+Content / AI Developer：山﨑
+  責務：カリキュラム設計、AIを活用したコンテンツ生成、サーバー運用
+  スキル：AI活用開発、Minecraft開発、サーバー運営
+
+System / AI Developer：井上
+  責務：システム設計、データパイプライン構築、経済システム実装
+  スキル：AI活用開発、Minecraft開発、サーバー運営、数理設計
+
+不足スキルへの対策：
+・3Dモデリング：AIによる自動生成（Meshy等）を活用
+・データサイエンス：高崎が特徴量設計を担当、scikit-learn/AutoMLで対応
+
+3-5. 技術的リスクと対策
+
+・アセスメント推定精度が不十分（高）→ if(塾)で実際のWISC検査結果との照合による精度検証
+・LLMによるクエスト生成の品質（中）→ プロンプトテンプレートによる品質管理
+・ユーザー数増加時のサーバー負荷（低）→ MVP段階は30名規模、クラウドで対応
+
+3-6. 倫理的配慮・プライバシー対策
+
+・インフォームドコンセント：保護者および本人に書面で同意を取得
+・データの匿名化：認知プロファイルデータは個人を特定できない形で保存
+・データの最小化：認知特性推定に必要な最小限の行動ログに限定
+・アクセス制御：認知プロファイルへのアクセスは本人・保護者・担当支援者に限定
+・研究倫理審査：必要に応じて大学等のIRBへ申請</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図3：システム構成図</p>
+    <img src="images/doc3.png" alt="図3：システム構成図">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>④ 提案者の実力・能力を示す実績</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-track')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-track">4-1. 臨床知見×実装力を同時に持つPM（高崎翔太）
+
+高崎は、臨床心理士・教育実践者・開発者の3領域を横断している。
+・WAIS/WISC実施・分析：500人以上
+・教育現場での実装経験：通信制高校・学習支援現場で継続運用
+・開発実績：Unity/C#、AI活用開発、学習・業務システム実装
+
+本提案の中核であるStealth WAISは、心理評価の知見だけでも、開発力だけでも成立しない。高崎が両者を接続できることが実現可能性の主要根拠である。
+
+4-2. 実証フィールド「if(塾)」による高速検証
+
+if(塾)は、神経多様性・不登校経験・意欲低下を含む多様な若者が在籍する実証フィールドであり、以下を同一環境で回せる。
+・プロトタイプの即日テスト
+・行動ログ取得と改善反映
+・教育指標（継続・完遂）と実務指標（納品・報酬）の同時検証
+
+この高速フィードバックループにより、一般的な研究開発より短いサイクルで改善可能。
+
+4-2-1. 「精神と時の部屋」型・超圧縮成長モデル
+
+if(塾)が目指すのは、いわば「精神と時の部屋」──一日で一年分の修行ができる場所──の現実版である。もちろん物理的に時間を圧縮することは不可能だが、以下の4段階を高速に回すことで、通常の教育環境における1ヶ月分の成長を1日で実現しうる密度を生み出す。
+
+①発達特性の理解：Stealth WAISにより、本人の認知特性（処理速度・ワーキングメモリ・注意配分等）を正確に把握する。「何が苦手か」だけでなく「何に突出しているか」を可視化する。
+②AIで苦手を補う：苦手領域はAIバディが代替・補助する。文章作成が苦手ならAIが下書きを生成し、段取りが苦手ならAIがタスクを自動分解する。苦手に時間を奪われない環境を作る。
+③AIで得意を加速する：得意領域が特定されたら、AIがその領域に特化したクエストを集中的に生成し、学習効率を最大化する。得意なことに没頭できる時間を圧倒的に増やす。
+④実案件で実戦経験を積む：抽象的な学習課題ではなく、企業BPO等の実務クエストに取り組む。実際の成果物を作り、フィードバックを受け、報酬を得る。「実戦」が最も成長を加速させる。
+
+この①→②→③→④のサイクルを1日の中で高密度に回すことで、従来の教育環境で1ヶ月かけて到達する成長──スキル獲得・成功体験の蓄積・自己効力感の形成──を、1日で凝縮して実現する。これがif(塾)×Genesisが提供する「精神と時の部屋」型の超圧縮成長環境である。
+
+4-3. Team Genesisの補完構造
+
+・高崎（PM/Lead）：アセスメント設計、AI統合、実証設計
+・山﨑（Content/AI）：クエスト設計、運用設計、学習導線最適化
+・井上（System/AI）：データ基盤、経済システム、API設計
+
+3名は「評価」「学習」「就労接続」を分担しつつ、同一プロダクト上で統合開発できる体制である。
+
+4-4. 既存アセット活用による実装短縮
+
+開発中プロジェクトKitazunaの資産（ワールド基盤、アイテム管理、認証、UI）を再利用し、ゼロ開発と比較して初期実装を大幅短縮する。
+これにより未踏期間中に「動く実証」まで到達する確度を高める。
+
+4-4-1. 採択前実装済みデモ：Genesis Platform プロトタイプ
+
+事業採択を待たず、Genesisの核心ロジックを検証するWebプロトタイプをすでに実装・公開している。
+ブラウザ上で完結するSPA（genesis-platform.html）として、以下の機能を動作させた状態で審査官・関係者に提示できる。
+
+【実装済み機能①】企業案件 → タスク自動分解 → 生徒マッチング
+・企業から案件を登録すると、カテゴリ（Web開発/デザイン/コンテンツ/データ分析/マーケティング）に応じてタスクを自動分解（4〜5工程）
+・各タスクに対し、生徒のスキル一致度・興味適合度・レベル差・モチベーション状態を加味したスコア（0〜100点）を算出し、最適な生徒へ自動割り振り
+・スコア計算式：スキル一致数×30 ＋ 興味一致×20 ＋ 難易度適合×20 ─ 担当過多ペナルティ×15 ＋ 無気力層優遇（易タスク優先）×10〜15
+・これは「やる気がなくても提示された最小単位タスクを処理するだけで前進できる」Genesisの設計思想を実際のUXとして実証する
+
+【実装済み機能②】Minecraft NPC AI（スティーブ）
+・生徒の現在担当タスク・スキル・モチベーションスコアを参照した文脈付きAI応答を生成
+・モチベーション低下層（スコア50%未満）には「ログインするだけでいい日もある」「ダイヤモンドも掘り続ければ見つかる」等、心理的安全性を重視した表現でアプローチ
+・会話内容を統合DBに自動保存し、他のツールと横断共有
+
+【実装済み機能③】やる事相談AI
+・生徒プロフィールと現在のアサイン済みタスクから「今日やるべき具体的な一歩」を提案
+・モチベーション40%未満の生徒には「15分だけ触る」「タスクの説明を読むだけでOK」など超微細ゴールを提示
+・優先度の根拠（スキル適合理由・推定工数）を説明形式で出力
+
+【実装済み機能④】統合会話データベース
+・Minecraft NPC・やる事相談AI・マッチングシステムの全活動ログを単一DBに集約
+・ツール別・生徒別フィルタリングと時系列タイムライン表示
+・これは「Minecraftでの会話履歴を踏まえて相談AIが提案する」というクロスプラットフォームAIバディのコンセプトを先行実証するものである
+
+このプロトタイプはUnity未踏本体とは別物（ブラウザ版の概念実証）であるが、「モチベーション非依存のタスク提示」「AI会話の横断DB統合」というGenesisの差別化コアが実際に動作することを示す具体的な根拠となる。
+
+4-5. 社会実装ネットワーク
+
+教育現場・自治体・支援団体・企業との既存接点を活用し、PoC止まりではなく導入・運用まで接続する。
+目的は研究成果の提示ではなく、実運用可能な社会実装モデルの確立である。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>⑤ 事業化・社会実装の新規性・優位性、想定するターゲットと規模</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-market')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-market">5-1. 新規性・優位性
+
+Genesisの優位性は、次の3点を一体化している点にある。
+(1) Stealth WAIS（行動ログ起点の認知推定）
+(2) モチベーション非依存のマイクロクエスト生成
+(3) 教育内での実務・報酬接続（BPOクエスト）
+
+既存サービスは「評価」「学習」「就労」のいずれかに強みを持つが、3つを同時最適化する設計は限定的である。
+
+5-2. 競合との差別化（要点）
+
+・発達支援/学習支援：個別支援は可能だが、ログ駆動での自動最適化と経済接続が弱い
+・汎用EdTech：教材提供中心で、認知推定と就労接続が分断
+・就労移行支援：出口支援に強いが、学習段階からの行動設計が弱い
+
+Genesisは、初期行動の成立から実務接続までを連続設計することで、現場の「やる気待ち」ボトルネックを突破する。
+
+5-3. ターゲット
+
+一次ターゲット：
+・神経多様性（ADHD/ASD等）または不登校経験のある若者
+・高刺激な受動コンテンツ環境で意欲低下している若者
+
+二次ターゲット：
+・通信制高校、フリースクール、放課後等デイ、自治体支援事業
+・人手不足領域でタスク分解型BPOを必要とする地域企業
+
+5-4. 市場規模（整理）
+
+TAM：教育DX・支援教育・若年就労支援を含む広義市場
+SAM：不登校・神経多様性・学習困難層への支援市場
+SOM：秋田県内の実証導入先（学校/支援機関）＋連携企業から段階拡大
+
+5-5. 参入障壁
+
+・臨床知見と行動ログ設計の組み合わせ
+・実証フィールドを持つ継続改善体制
+・評価〜学習〜就労を一体で回すプロダクトアーキテクチャ
+
+この3点の同時保有が参入障壁となる。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>⑥ 事業化・社会実装の具体的な進め方</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-biz')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-biz">6-1. ビジネスモデル（Genesis Ecosystem）
+
+収益源は3本柱とする。
+・License：教育/支援機関向けSaaS利用料
+・Work：BPOクエスト流通手数料
+・Recruit：成果物ポートフォリオ経由の採用/マッチング手数料
+
+6-2. 価値提供
+
+教育機関には「行動成立と継続の仕組み」、企業には「タスク分解された実務遂行能力」、ユーザーには「学びながら稼げる実感」を提供する。
+
+6-3. 導入ロードマップ
+
+Phase 1（未踏期間）：
+・if(塾)でMVP実証
+・KPI計測（着手率/完遂率/継続率/納品率/報酬発生）
+・連携企業1社以上でBPOクエスト実稼働
+
+Phase 2（1年目）：
+・教育機関へのSaaS提供拡大
+・BPOクエストの業種拡張
+・運用テンプレート化（導入・研修・運用指標）
+
+Phase 3（2年目以降）：
+・導入地域の拡大
+・採用接続モデルの本格運用
+・非言語UI等による対象拡張
+
+6-4. 実装上の重要方針
+
+・教育倫理と報酬設計の両立（過負荷防止、年齢配慮、透明単価）
+・「やる気」に依存しない運用KPIで継続改善
+・PoCで終わらせず、導入後運用までを設計対象にする
+
+6-5. 事業期間内コミット
+
+・最初の有償導入/売上を達成
+・教育内経済活動モデルを実証データで提示
+・事業終了後の拡大計画に接続可能な運用基盤を整備
+</div>
+    <p style="margin-top:16px; color:var(--text-dim); font-size:.9em;">図4：ビジネスモデル図</p>
+    <img src="images/doc4.png" alt="図4：ビジネスモデル図">
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>⑦ 事業期間終了後の事業化・社会実装に関する計画</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-post')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-post">7-1. 事業終了後の組織計画
+
+事業終了後は、Genesisを継続開発・導入支援できる体制へ移行する。
+開発・運用・導入支援の3機能を分離し、実証から事業運営へ段階移行する。
+
+7-2. 人員計画
+
+・初年度：現行3名体制に加え、導入支援/CS機能を拡充
+・次年度以降：開発・導入案件数に応じてエンジニア/運用人材を段階採用
+
+7-3. 売上計画（考え方）
+
+売上は「SaaSライセンス」「BPO手数料」「採用接続手数料」の比率を段階的に最適化する。
+初期はSaaS中心、実務流通が増えるにつれWork/Recruit比率を高める。
+
+7-4. 経費計画（考え方）
+
+主要コストは人件費・インフラ・導入支援。
+初期は開発比率が高く、導入拡大フェーズではCS/運用コストへシフトする。
+
+7-5. 資金計画
+
+未踏期間中に実証指標と初期売上を獲得し、次フェーズの資金調達では
+「技術新規性」ではなく「運用再現性」と「収益再現性」を主要論点として提示する。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>⑧ 予算内訳</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-budget')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-budget">8-1. 稼働計画の方針
+
+予算上限1,600万円の範囲で、実証に直結する機能へ優先配分する。
+優先順位は以下の通り。
+(1) Stealth WAIS推定基盤
+(2) マイクロクエスト生成/配信
+(3) BPOクエスト運用導線
+(4) KPI可視化ダッシュボード
+
+8-2. 体制別の主担当
+
+・高崎：アセスメント設計、統合実装、実証設計
+・山﨑：クエスト設計、運用UI、コンテンツ品質
+・井上：データ基盤、API、経済モデル実装
+
+8-3. 進捗管理
+
+月次で「実装進捗」だけでなく「行動成立KPI」を評価軸にする。
+これにより、作って終わりではなく、機能が現場で有効かを予算執行と連動して判断する。
+
+8-4. 予算運用の妥当性
+
+高難度実装（推定・生成・接続）を内製中心で実行しつつ、既存アセット流用で工数効率を高めることで、予算制約内で実証到達可能な計画とする。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>⑨ 提案プロジェクトと所属企業との差異</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-diff')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div class="doc-text" id="doc-diff">⑨ 提案プロジェクトと所属組織業務との差異（整理）
+
+Genesisは、提案者の所属先業務とは目的・技術・収益構造が異なる独立プロジェクトである。
+
+・目的：学校教育運営ではなく、評価〜学習〜就労接続を統合する新規基盤の開発
+・技術：Stealth WAIS、クエスト自動生成、教育内経済活動接続など独自設計
+・収益：学費モデルではなく、SaaS/BPO/採用接続の複合モデル
+・知財：提案チームが独自開発・管理
+
+開発は勤務時間外の個人/チーム活動として実施し、所属組織との利益相反を回避する。
+将来的に所属組織が導入候補となる可能性はあるが、開発主体と事業主体は明確に分離される。</div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>概要資料（A4横1枚 / ファイル2表紙用）</h3>
+  </div>
+  <div class="doc-section-body">
+    <p style="color:var(--text-dim); font-size:.9em;">図5：概要一覧</p>
+    <img src="images/doc5.png" alt="図5：概要一覧">
+  </div>
+</div>
+
+</div><!-- sec-docs -->
+
+<!-- ファイル提出戦略セクション -->
+<div id="sec-file-strategy">
+
+<div class="section-title">📦 ファイル提出戦略・加点ポイント<span class="badge">全4ファイル</span></div>
+
+<!-- ファイル提出チェックリスト -->
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>提出ファイル一覧と準備状況</h3>
+  </div>
+  <div class="doc-section-body">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:16px;">
+      <div style="background:rgba(0,184,148,.1); border:1px solid rgba(0,184,148,.3); border-radius:12px; padding:20px;">
+        <div style="font-size:1.5em; margin-bottom:8px;">📜</div>
+        <div style="font-weight:700; margin-bottom:4px;">ファイル1：誓約書</div>
+        <div style="font-size:.85em; color:var(--text-dim);">必須 / 10MB以下</div>
+        <div style="margin-top:8px; color:var(--warning); font-size:.85em;">⚠️ 公式サイトからDL → 記入 → PDF</div>
+      </div>
+      <div style="background:rgba(0,184,148,.1); border:1px solid rgba(0,184,148,.3); border-radius:12px; padding:20px;">
+        <div style="font-size:1.5em; margin-bottom:8px;">📄</div>
+        <div style="font-weight:700; margin-bottom:4px;">ファイル2：提案プロジェクト詳細資料</div>
+        <div style="font-size:.85em; color:var(--text-dim);">必須 / PDF / 20MB以下 / 5〜10ページ</div>
+        <div style="margin-top:8px; color:var(--success); font-size:.85em;">✅ 全9セクション(①〜⑨)記載済み</div>
+      </div>
+      <div style="background:rgba(108,92,231,.1); border:1px solid rgba(108,92,231,.3); border-radius:12px; padding:20px;">
+        <div style="font-size:1.5em; margin-bottom:8px;">🎬</div>
+        <div style="font-weight:700; margin-bottom:4px;">ファイル3：自己紹介ビデオ</div>
+        <div style="font-size:.85em; color:var(--text-dim);">任意 / 動画 / 30MB以下 / チーム1分以内</div>
+        <div style="margin-top:8px; color:var(--accent2); font-size:.85em;">🎯 加点チャンス！構成案あり↓</div>
+      </div>
+      <div style="background:rgba(108,92,231,.1); border:1px solid rgba(108,92,231,.3); border-radius:12px; padding:20px;">
+        <div style="font-size:1.5em; margin-bottom:8px;">📎</div>
+        <div style="font-weight:700; margin-bottom:4px;">ファイル4：参考資料</div>
+        <div style="font-size:.85em; color:var(--text-dim);">任意 / 自由書式 / 30MB以下</div>
+        <div style="margin-top:8px; color:var(--accent2); font-size:.85em;">🎯 加点チャンス！収録物リストあり↓</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ファイル2 チェックリスト -->
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>ファイル2：必須記載項目チェックリスト（公募要領6.(6)準拠）</h3>
+  </div>
+  <div class="doc-section-body">
+    <div style="font-size:.9em; color:var(--text-dim); margin-bottom:16px;">形式要件：A4 / 縦置き・横書き / 10.5pt以上 / PDF / 20MB以下 / 5〜10ページ<br>最初のページにプロジェクト名・提案者名を記載すること</div>
+    <table style="width:100%; border-collapse:collapse; font-size:.9em;">
+      <tr style="background:rgba(108,92,231,.15);">
+        <th style="padding:10px; text-align:left; border-bottom:1px solid var(--border);">項目</th>
+        <th style="padding:10px; text-align:left; border-bottom:1px solid var(--border);">公募要領の要求内容</th>
+        <th style="padding:10px; text-align:center; border-bottom:1px solid var(--border);">状態</th>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border); opacity:.5;">
+        <td style="padding:10px;">⓪ 前回の提案との差異</td>
+        <td style="padding:10px;">過去に未踏アドバンストに応募し同テーマで再応募する場合のみ</td>
+        <td style="padding:10px; text-align:center;">➖ 非該当</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">① 背景・目的・目標</td>
+        <td style="padding:10px;">開発と事業化の両面で丁寧に。競合があれば差別化要因も</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">② 未踏性・期待される効果</td>
+        <td style="padding:10px;">独創的アイディア、技術シーズの優位性、期待される効果</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">③ 開発の具体的な進め方</td>
+        <td style="padding:10px;">プロトタイプ / 開発内容 / 開発体制 / スケジュール / 課題と解決策</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">④ 実力・実績</td>
+        <td style="padding:10px;">全員のスキル・受賞歴 / 実現性の根拠 / 未踏採択歴</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">⑤ 事業化の新規性・ターゲット・規模</td>
+        <td style="padding:10px;">新規性・優位性 / 市場・ユーザ規模 / 競合比較</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">⑥ 事業化の具体的な進め方</td>
+        <td style="padding:10px;">ビジネスモデル / 事業化体制 / スケジュール / 課題と解決策</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">⑦ 事業終了後の計画</td>
+        <td style="padding:10px;">人員計画 / 経費計画 / 売上計画</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">⑧ 予算内訳</td>
+        <td style="padding:10px;">稼働計画と費用の表形式（上限1,600万円、1名上限800万円）</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px;">⑨ 所属企業との差異</td>
+        <td style="padding:10px;">提案プロジェクトと所属企業のビジネスモデル・技術開発との差異</td>
+        <td style="padding:10px; text-align:center; color:var(--success);">✅ 済(v4)</td>
+      </tr>
+    </table>
+    <div style="margin-top:16px; padding:12px; background:rgba(0,184,148,.1); border-radius:8px; font-size:.9em;">
+      <strong>判定：全必須項目を網羅。</strong> ⓪は未踏アドバンスト再応募でないため非該当。⑨はv4で追加済み。Wordテンプレートに流し込んでPDF化する準備完了。
+    </div>
+  </div>
+</div>
+
+<!-- ファイル3 構成案 -->
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>ファイル3：自己紹介ビデオ 構成案（1分以内）</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-video')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div style="padding:12px; background:rgba(253,203,110,.1); border:1px solid rgba(253,203,110,.3); border-radius:8px; margin-bottom:16px; font-size:.9em;">
+      <strong>加点が期待できる審査項目：</strong><br>
+      ・C-1 プロトタイプの有無（+1〜2点）→ デモ映像で「動くもの」を見せる<br>
+      ・C-3 チーム体制（+1点）→ 3人の熱意とチームワークを見せる<br>
+      ・B-2 ニーズの検証度（+1点）→ if(塾)の実際の活動を見せる<br>
+      ・A-1 技術的新規性（+1点）→ AI NPC会話デモで技術力を証明
+    </div>
+    <div class="doc-text" id="doc-video">【自己紹介ビデオ構成案 - Team Genesis（1分以内）】
+
+■ 0:00〜0:05 タイトル
+「Team Genesis - 未踏アドバンスト2026」
+背景：Kitazunaのゲーム画面をループ再生
+
+■ 0:05〜0:25 高崎翔太（PM / Lead Developer）
+・「臨床心理士として500人以上の子どもの知能検査を実施してきました」
+・「教育現場で確信したこと——彼らの能力が低いのではなく、環境が合っていないだけです」
+・「NEXT10優勝、秋田若者チャレンジ採択、ASHIOTO採択。このプロジェクトで教育を変えます」
+→ 映像：高崎がif(塾)で生徒と関わる様子 / ピッチ大会の写真
+
+■ 0:25〜0:35 山﨑琢己（Content / AI Developer）
+・「if(塾)の塾長として日々生徒と向き合っています」
+・「Minecraft/AIの技術でGenesisの世界を作ります」
+→ 映像：山﨑がMinecraft/AIシステムを操作する様子
+
+■ 0:35〜0:45 井上陽斗（System / AI Developer）
+・「AI甲子園全国5位。AIの力で埋もれた才能を可視化します」
+→ 映像：将棋駒判別AIのデモ / Minecraft開発画面
+
+■ 0:45〜0:55 デモ映像（ここが最重要！）
+・AI NPCとの自然言語会話シーン（Minecraft版）
+・AI NPCとの会話シーン（Kitazuna/Unity版）
+・if(塾)の活動風景
+
+■ 0:55〜1:00 クロージング
+・3人で一言「Genesisで、埋もれた異能を社会の力に変えます」
+
+【撮影・編集メモ】
+・ファイル名：「高崎翔太_自己紹介ビデオ_Genesis.mp4」
+・画質は720p推奨（30MB以内に収めるため）
+・BGMは控えめに（審査員が音声を聞き取れるように）
+・字幕テロップ必須（名前・所属・実績を表示）</div>
+  </div>
+</div>
+
+<!-- ファイル4 構成案 -->
+<div class="doc-section">
+  <div class="doc-section-header">
+    <h3>ファイル4：参考資料 構成案</h3>
+    <button class="copy-btn" onclick="copyDocText(this, 'doc-ref')">コピー</button>
+  </div>
+  <div class="doc-section-body">
+    <div style="padding:12px; background:rgba(253,203,110,.1); border:1px solid rgba(253,203,110,.3); border-radius:8px; margin-bottom:16px; font-size:.9em;">
+      <strong>加点が期待できる審査項目：</strong><br>
+      ・C-1 プロトタイプの有無（+1〜2点）→ スクリーンショット・動画で実在を証明<br>
+      ・C-3 チーム体制（+1点）→ 受賞歴の証明で信頼性UP<br>
+      ・A-1 技術的新規性（+1点）→ Shute(2011)論文の引用で学術的裏付け<br>
+      ・B-2 ニーズの検証度（+1点）→ if(塾)の活動実態を写真で証明
+    </div>
+    <div class="doc-text" id="doc-ref">【参考資料（ファイル4）収録物リスト】
+
+ファイル名：「高崎翔太_参考資料_Genesis.pdf」（または.zip）
+※複数ファイルの場合は圧縮してアップロード。30MB以下。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 技術デモ資料（審査員に「動いている」と確信させる）
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ AI NPC 会話デモ スクリーンショット（Minecraft版）
+  → NPCとの自然言語会話が成立している画面キャプチャ
+□ AI NPC 会話デモ スクリーンショット（Kitazuna/Unity版）
+  → Unity上でのAI NPC実装の画面キャプチャ
+□ Kitazuna ゲーム画面スクリーンショット（3〜5枚）
+  → ワールド、UI、インベントリ等の実装状況
+□ クロスプラットフォーム統合DBのアーキテクチャ図
+  → Minecraft↔Kitazuna↔Genesis間のデータ連携設計
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. 実績証明資料（チームの信頼性を裏付ける）
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ NEXT10 ビジネスプランコンテスト 優勝の証明（写真 or 賞状）
+□ 秋田若者チャレンジ 2024 採択通知
+□ ASHIOTO 2025 採択通知
+□ AI甲子園 2025 全国5位入賞の証明（井上）
+□ 将棋駒判別AI デモ画面スクリーンショット（井上）
+□ 2025年度 未踏IT採択の実績（if(塾)、Kitazuna）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. 検証フィールド資料（if(塾)の実在と実績を証明）
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ if(塾) 活動写真（授業風景、生徒の作品等）
+□ if(塾) 生徒の成長事例（匿名化したケーススタディ 1〜2件）
+□ WISC検査結果と行動特性の対応関係 概念図
+  → Stealth WAISの根拠となるデータの構造を図示
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. 学術的背景（技術の学術的裏付け）
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ Shute, V. J. (2011). "Stealth Assessment in Computer-Based
+  Games to Support Learning." の該当ページ引用
+□ 関連研究リスト（ゲーム内行動からの認知特性推定に関する先行研究）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. 事業化関連資料
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ クラーク記念国際高等学校からの了解確認（所属組織の了解あり）
+□ 連携先一覧と関係性図（みらタネ、東成瀬村、スマイルランド等）
+
+【優先度】
+★★★ AI NPCデモ画面（技術の実在証明 = 最重要）
+★★★ Kitazuna画面（プロトタイプの実在証明）
+★★☆ 受賞証明（チームの信頼性）
+★★☆ if(塾)活動写真（検証フィールドの実在証明）
+★☆☆ 学術論文引用（あれば加点、なくても可）</div>
+  </div>
+</div>
+
+</div><!-- sec-file-strategy -->
+
+</div><!-- container -->
+
+<script>
+const formData = [
+  // Section: 提案者1 個人情報
+  {
+    section: "sec-personal1",
+    title: "提案者の個人情報（入力1）― 提案者1（代表者）",
+    page: "2/56",
+    items: [
+      { num:1, q:"提案者1 氏名（氏）", req:true, type:"text", answer:"高崎" },
+      { num:2, q:"提案者1 氏名（名）", req:true, type:"text", answer:"翔太" },
+      { num:3, q:"提案者1 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:4, q:"提案者1 氏名（氏フリガナ）", req:true, type:"text", answer:"タカサキ" },
+      { num:5, q:"提案者1 氏名（名フリガナ）", req:true, type:"text", answer:"ショウタ" },
+      { num:6, q:"提案者1 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:7, q:"提案者1 生年月日", req:true, type:"text", answer:"1984/11/21" },
+      { num:8, q:"提案者1 メインの所属・在籍組織名", req:true, type:"text", answer:"if(塾)", desc:"メインとなる所属・在籍組織名（会社名・学校名等）を記入してください。所属・在籍組織がない場合は「フリーランス」と記入してください。" },
+      { num:9, q:"提案者1 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"塾頭", desc:"メインとなる所属・在籍組織の部署名を記入してください。" },
+      { num:10, q:"提案者1 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  {
+    section: "sec-personal1-cont",
+    title: "提案者の個人情報（入力1）（つづき）― 提案者1",
+    page: "4/56",
+    items: [
+      { num:11, q:"提案者1 そのほかの所属・在籍組織名", req:false, type:"text", answer:"秋田クラーク高等学院" },
+      { num:12, q:"提案者1 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"ITプログラミングコース担当" },
+      { num:13, q:"提案者1 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"", desc:"所属組織の株主構成、売上、利益、資本金、所属組織における役割・立場等" },
+      { num:14, q:"提案者1 郵便物送付先（郵便番号）", req:true, type:"text", answer:"010-0851", desc:"半角数字でハイフン「-」を含めて記入してください。" },
+      { num:15, q:"提案者1 郵便物送付先（住所）", req:true, type:"text", answer:"秋田県秋田市手形字西谷地177-2" },
+      { num:16, q:"提案者1 予備の電子メールアドレス", req:false, type:"text", answer:"ifjyuku@gmail.com" },
+      { num:17, q:"提案者1 電話番号", req:true, type:"text", answer:"080-4937-1121", desc:"半角数字でハイフン「-」を含めて記入してください。" },
+      { num:18, q:"提案者1 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:19, q:"提案者1 略歴", req:true, type:"text", answer:"専修大学院文学研究科心理学専攻コース修了,株式会社LITALICO2012年入社、株式会社LITALICO2019年退社、2019年ゲタバコ倶楽部開業、2024年if(塾)開業", desc:"略歴（学歴、職歴など）を記入してください。" },
+      { num:20, q:"提案者1 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり", desc:"すべての所属組織から本事業への応募の了解を得ていますか。" }
+    ]
+  },
+  // Section: 提案者2有無
+  {
+    section: "sec-member2",
+    title: "ほかのメンバーについて（提案者2）",
+    page: "6/56",
+    items: [
+      { num:21, q:"提案者2のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"はい", desc:"提案者1（代表者）以外のメンバーはいますか。" }
+    ]
+  },
+  // Section: 居住地域
+  {
+    section: "sec-region",
+    title: "提案者1（代表者）以外のメンバーの居住地域",
+    page: "7/56",
+    items: [
+      { num:22, q:"提案者1以外のメンバーが居住している地域", req:true, type:"check", options:["北海道","東北地方","関東地方","中部地方","近畿地方","中国地方","四国地方","九州地方（沖縄県を含む）","その他"], answer:"東北地方" }
+    ]
+  },
+  // Section: 提案者2 個人情報
+  {
+    section: "sec-personal2",
+    title: "提案者の個人情報（入力1）― 提案者2",
+    page: "8/56",
+    items: [
+      { num:23, q:"提案者2 氏名（氏）", req:true, type:"text", answer:"山﨑" },
+      { num:24, q:"提案者2 氏名（名）", req:true, type:"text", answer:"琢己" },
+      { num:25, q:"提案者2 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:26, q:"提案者2 氏名（氏フリガナ）", req:true, type:"text", answer:"ヤマザキ" },
+      { num:27, q:"提案者2 氏名（名フリガナ）", req:true, type:"text", answer:"タクミ" },
+      { num:28, q:"提案者2 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:29, q:"提案者2 生年月日", req:true, type:"text", answer:"2006/02/02" },
+      { num:30, q:"提案者2 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
+      { num:31, q:"提案者2 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"塾長" },
+      { num:32, q:"提案者2 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"" }
+    ]
+  },
+  {
+    section: "sec-personal2-cont",
+    title: "提案者2の個人情報（つづき）",
+    page: "10/56",
+    items: [
+      { num:33, q:"提案者2 そのほかの所属・在籍組織名", req:false, type:"text", answer:"山形大学" },
+      { num:34, q:"提案者2 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"社会共創デジタル学環" },
+      { num:35, q:"提案者2 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"" },
+      { num:36, q:"提案者2 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:37, q:"提案者2 略歴", req:true, type:"text", answer:"秋田クラーク高等学院2025年卒業,山形大学社会共創デジタル学環2025年入学" },
+      { num:38, q:"提案者2 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり" }
+    ]
+  },
+  // Section: 提案者3有無
+  {
+    section: "sec-member3",
+    title: "ほかのメンバーについて（提案者3）",
+    page: "12/56",
+    items: [
+      { num:39, q:"提案者3のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"はい" }
+    ]
+  },
+  // Section: 提案者3 個人情報
+  {
+    section: "sec-personal3",
+    title: "提案者の個人情報（入力1）― 提案者3",
+    page: "13/56",
+    items: [
+      { num:40, q:"提案者3 氏名（氏）", req:true, type:"text", answer:"井上" },
+      { num:41, q:"提案者3 氏名（名）", req:true, type:"text", answer:"陽斗" },
+      { num:42, q:"提案者3 氏名（ミドルネーム）", req:false, type:"text", answer:"" },
+      { num:43, q:"提案者3 氏名（氏フリガナ）", req:true, type:"text", answer:"イノウエ" },
+      { num:44, q:"提案者3 氏名（名フリガナ）", req:true, type:"text", answer:"ハルト" },
+      { num:45, q:"提案者3 氏名（ミドルネームフリガナ）", req:false, type:"text", answer:"" },
+      { num:46, q:"提案者3 生年月日", req:true, type:"text", answer:"2026/02/11" },
+      { num:47, q:"提案者3 メインの所属・在籍組織名（会社名・学校名等）", req:true, type:"text", answer:"if(塾)" },
+      { num:48, q:"提案者3 メインの所属・在籍組織の部署名", req:true, type:"text", answer:"フリーランス" },
+      { num:49, q:"提案者3 メインの所属は会社等ですか", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  {
+    section: "sec-personal3-cont",
+    title: "提案者3の個人情報（つづき）",
+    page: "15/56",
+    items: [
+      { num:50, q:"提案者3 そのほかの所属・在籍組織名", req:false, type:"text", answer:"秋田大学" },
+      { num:51, q:"提案者3 そのほかの所属・在籍組織の部署名", req:false, type:"text", answer:"理工学部" },
+      { num:52, q:"提案者3 そのほかの所属・在籍組織が法人の場合の追加情報", req:false, type:"text", answer:"" },
+      { num:53, q:"提案者3 消費税課税事業者区分", req:true, type:"select", options:["免税事業者","課税事業者"], answer:"免税事業者" },
+      { num:54, q:"提案者3 略歴", req:true, type:"text", answer:"2026年秋田クラーク高等学院卒業、2026年秋田大学入学" },
+      { num:55, q:"提案者3 所属組織の了解有無", req:true, type:"select", options:["了解あり","了解なし"], answer:"了解あり" }
+    ]
+  },
+  // Section: 提案者4有無
+  {
+    section: "sec-member4",
+    title: "ほかのメンバーについて（提案者4）",
+    page: "17/56",
+    items: [
+      { num:56, q:"提案者4のメンバー有無", req:true, type:"select", options:["はい","いいえ"], answer:"いいえ" }
+    ]
+  },
+  // Section: プロジェクト概要
+  {
+    section: "sec-project",
+    title: "申請金額とプロジェクトの概要（入力2）",
+    page: "34/56",
+    items: [
+      { num:57, q:"プロジェクト名（30字以内）", req:true, type:"text", answer:"if(塾)の才能爆発教育〜発達特性×AI×起業家精神", desc:"提案内容を的確かつ具体的に表現し、用いる技術と解決しようとする課題が読み取れる簡潔でわかり易い名称としてください。" },
+      { num:58, q:"実施費用総額", req:true, type:"text", answer:"16,000,000", desc:"半角数字で3桁コンマ（,）区切りで記入してください。時間単価×作業時間で計算される金額です。" },
+      { num:59, q:"提案プロジェクト概要（600字〜1,000字程度）", req:true, type:"text", answer:"本プロジェクトは、既存の画一的な教育環境に不適応を起こしている神経多様性児（ADHD/ASD等）に対し、AIによる「完全個別最適化」と「自律的な相互扶助」を提供するメタバース空間『Genesis』を開発するものである。\n\n1. 没入型アセスメント（The Decoder）：ユーザーは初期の「何もない空間」での建築ミッションを通じ、視線・操作ログ・バイタル等のマルチモーダルデータから、従来の検査では不可能な深層的な発達特性や認知バイアスをAIにより解析される。\n\n2. ワールド＝ポートフォリオ（The Portfolio）：解析結果に基づき、AIバディがその子に最適な「探究クエスト」を生成。獲得した能力は「自動化された農場」や「高度な建築物」等の「スキルオブジェクト」として具現化され、空間そのものが「3D職務経歴書」となる。\n\n3. スキル共有によるシナジー創出（The Synergy）：ユーザー間で「苦手なタスク」を依頼し合うギルド機能を実装。依頼が達成されると、提供者のスキルオブジェクトが依頼者のワールドにも生成（インストール）される。これにより、不得意分野を他者の才能で補完し合う「凸凹の結合」を可視化し、自然発生的なDAO型コミュニティを形成する。\n\n最終的には、この経済圏に実社会企業のタスクを接続し、排除されていた異能を最短ルートで社会実装するエコシステムを構築する。", desc:"提案プロジェクト詳細資料（ファイル2）に記載する内容の中で重要なポイントを中心に、全体の概要を簡潔にまとめてください。" },
+      { num:60, q:"知的財産権の権利情報", req:false, type:"text", answer:"minecraft", desc:"提案プロジェクトに関する知的財産権の権利情報を全て記載してください。第三者が持つ権利を利用して開発を行う場合にもすべて記載してください。" }
+    ]
+  },
+  // Section: 確認事項
+  {
+    section: "sec-confirm",
+    title: "確認事項（入力3）",
+    page: "35-55/56",
+    items: [
+      { num:61, q:"過去の採択経験有無", req:true, type:"select", options:["採択されたことがある","採択されたことはない"], answer:"採択されたことがある", desc:"提案メンバーはこれまでに、IPAが実施する未踏ソフトウェア創造事業、未踏IT人材発掘・育成事業、未踏アドバンスト事業、未踏ターゲット事業のいずれかに採択されたことはありますか。" },
+      { num:62, q:"採択事業名・採択年度", req:true, type:"text", answer:"2025 if(塾)、Kitazuna", desc:"採択された事業名と採択年度を全て記入してください。" },
+      { num:63, q:"他の未踏事業との併願", req:true, type:"select", options:["未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している（または応募する予定）のメンバーがいる","未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している（または応募する予定）のメンバーはいない"], answer:"", desc:"2026年度の未踏IT人材発掘・育成事業または未踏ターゲット事業に応募している、または応募する予定のメンバーはいますか。" },
+      { num:64, q:"IPAとの係わり合いの有無", req:true, type:"select", options:["ある","ない"], answer:"ない", desc:"提案メンバーはこれまでにIPAと何らかの係わり合いを持ったことがありますか。（委員会の委員等の経験など）" },
+      { num:65, q:"PMとの密接な関係の有無", req:true, type:"select", options:["ある","ない"], answer:"ない", desc:"提案メンバーはPMとの密接な関係にありますか。" },
+      { num:66, q:"所属組織の変更予定有無", req:true, type:"select", options:["予定がある","予定はない"], answer:"予定はない", desc:"事業期間中に所属組織（学校を含みます）が変更になる予定がありますか。" },
+      { num:67, q:"外国籍メンバーの有無", req:true, type:"select", options:["外国籍メンバーがいる（在留資格を有し、就労可能）","外国籍メンバーがいる（在留資格や就労可否に未確定部分がある）","外国籍メンバーはいない"], answer:"外国籍メンバーはいない" },
+      { num:68, q:"未成年者の有無", req:true, type:"select", options:["未成年者がいる（保護者の了解あり）","未成年者がいる（保護者の了解なし）","未成年者はいない"], answer:"未成年者がいる（保護者の了解あり）" },
+      { num:69, q:"公的機関の助成有無", req:true, type:"select", options:["2024年6月以降に受けたことがある","現在受けている","応募中","上記に当てはまらない"], answer:"上記に当てはまらない", desc:"提案プロジェクトに類似した内容での公的機関からの助成等について伺います。" },
+      { num:70, q:"公的機関以外の助成有無", req:true, type:"select", options:["2024年6月以降に受けたことがある","現在受けている","応募中","上記に当てはまらない"], answer:"上記に当てはまらない", desc:"提案プロジェクトに類似した内容での公的機関以外の民間企業等（大学・ファンド等を含む）が行う助成等について伺います。" },
+      { num:71, q:"確認書への同意", req:true, type:"select", options:["同意する","同意しない"], answer:"同意する", desc:"公募要領の 8. その他応募にあたっての注意点（5）に記載している確認書の内容について、同意しますか。" },
+      { num:72, q:"提案プロジェクトを活用して、日本のIT関連産業の発展に寄与する意欲", req:true, type:"select", options:["意欲がある","意欲がない"], answer:"意欲がある" },
+      { num:73, q:"現在考えていることまたは意欲がない理由", req:true, type:"text", answer:"教育にIT革命起こるぞ", desc:"意欲があると回答した場合は現在考えていることを、意欲がないと回答した場合はその理由を記入してください。" }
+    ]
+  },
+  // Section: ファイルアップロード
+  {
+    section: "sec-files",
+    title: "ファイルアップロード",
+    page: "56/56",
+    items: [
+      { num:74, q:"誓約書（ファイル1）", req:true, type:"file", answer:"", desc:"誓約書をアップロードしてください。公募概要ページよりダウンロード。ファイル名の最初に氏名を記載。10MB以下。" },
+      { num:75, q:"提案プロジェクト詳細資料（ファイル2）", req:true, type:"file", answer:"", desc:"提案詳細のPDFデータをアップロード。ファイル名の最初に氏名を記載。20MB以下。公募要領6.に記載された要件を満たしていること。" },
+      { num:76, q:"自己紹介ビデオ（ファイル3）", req:false, type:"file", answer:"", desc:"【任意】自己紹介ビデオがあればアップロード。ファイル名の最初に氏名を記載。30MB以下。" },
+      { num:77, q:"参考資料（ファイル4）", req:false, type:"file", answer:"", desc:"【任意】参考資料があればアップロード。ファイル名の最初に氏名を記載。30MB以下。複数ファイルがある場合は圧縮してアップロード。" }
+    ]
+  }
+];
+
+function renderForm() {
+  const container = document.getElementById('form-content');
+  let html = '';
+
+  formData.forEach(section => {
+    html += `<div id="${section.section}">`;
+    html += `<div class="section-title">📋 ${section.title} <span class="badge">p.${section.page}</span></div>`;
+
+    section.items.forEach(item => {
+      const hasAnswer = item.answer && item.answer.trim() !== '';
+      const reqTag = item.req
+        ? '<span class="q-tag tag-required">必須</span>'
+        : '<span class="q-tag tag-optional">任意</span>';
+      const statusTag = hasAnswer
+        ? '<span class="q-tag tag-filled" style="margin-left:6px">入力済</span>'
+        : '<span class="q-tag tag-empty" style="margin-left:6px">未入力</span>';
+
+      html += `<div class="card" id="q-${item.num}">`;
+      html += `<div class="card-header">`;
+      html += `<span class="q-num">${item.num}</span>`;
+      html += `<span class="q-title">${item.q}</span>`;
+      html += `<div>${reqTag}${statusTag}</div>`;
+      html += `</div>`;
+      html += `<div class="card-body">`;
+
+      if (item.desc) {
+        html += `<div class="description">${item.desc}</div>`;
+      }
+
+      if (item.type === 'select' || item.type === 'check') {
+        html += `<div class="select-answer">`;
+        (item.options || []).forEach(opt => {
+          const sel = item.answer === opt ? 'selected' : '';
+          html += `<span class="select-option ${sel}">${opt}</span>`;
+        });
+        html += `</div>`;
+        if (hasAnswer) {
+          html += `<div class="answer" style="margin-top:12px">${item.answer}<button class="copy-btn" onclick="copyText(this)">コピー</button></div>`;
+        }
+      } else if (item.type === 'file') {
+        html += `<div class="file-upload-card">`;
+        html += `<div class="icon">📎</div>`;
+        html += `<div class="name">${item.q}</div>`;
+        html += `<div class="spec">${item.desc || ''}</div>`;
+        html += `<div style="margin-top:10px; color:var(--warning); font-size:.85em">${hasAnswer ? '✅ 準備済み' : '⚠️ 未準備'}</div>`;
+        html += `</div>`;
+      } else {
+        const cls = hasAnswer ? '' : 'empty';
+        const display = hasAnswer ? item.answer : '（未入力）';
+        html += `<div class="answer ${cls}">${display}${hasAnswer ? '<button class="copy-btn" onclick="copyText(this)">コピー</button>' : ''}</div>`;
+      }
+
+      html += `</div></div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  updateStats();
+}
+
+function updateStats() {
+  let total = 0, filled = 0, reqCount = 0;
+  formData.forEach(s => s.items.forEach(item => {
+    total++;
+    if (item.req) reqCount++;
+    if (item.answer && item.answer.trim() !== '') filled++;
+  }));
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-filled').textContent = filled;
+  document.getElementById('stat-empty').textContent = total - filled;
+  document.getElementById('stat-req').textContent = reqCount;
+
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `入力済み: ${filled} / ${total}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function copyText(btn) {
+  const parent = btn.parentElement.cloneNode(true);
+  parent.querySelectorAll('button').forEach(b => b.remove());
+  const text = parent.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'コピー済み!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyDocText(btn, id) {
+  const text = document.getElementById(id).textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'コピー済み!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Smooth scroll for nav
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+renderForm();
+</script>
+</body>
+</html>
