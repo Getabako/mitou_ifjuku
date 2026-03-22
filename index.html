@@ -1210,7 +1210,9 @@ function updateStats() {
 }
 
 function copyText(btn) {
-  const text = btn.parentElement.textContent.replace('コピー', '').replace('コピー済み!', '').trim();
+  const parent = btn.parentElement.cloneNode(true);
+  parent.querySelectorAll('button').forEach(b => b.remove());
+  const text = parent.textContent.trim();
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = 'コピー済み!';
     btn.classList.add('copied');
